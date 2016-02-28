@@ -88,168 +88,47 @@
     <link href="http://cilab-undefine.github.io/2016/01/16/2016-01-16-scrapy%E5%86%99%E7%AC%AC%E4%B8%80%E4%B8%AA%E7%88%AC%E8%99%AB/"/>
     <id>http://cilab-undefine.github.io/2016/01/16/2016-01-16-scrapy写第一个爬虫/</id>
     <published>2016-01-16T04:56:34.000Z</published>
-    <updated>2016-02-28T11:16:36.695Z</updated>
+    <updated>2016-02-28T13:17:15.322Z</updated>
     
-    <content type="html">&lt;p&gt;本节示例以爬取西刺免费代理网站为例（ &lt;a href=&quot;http://www.xicidaili.com&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.xicidaili.com&lt;/a&gt; ），说明用scrapy框架写一个爬虫的基本流程。其中已实现数据库存储。&lt;/p&gt;
+    <content type="html">&lt;p&gt;本节示例以爬取西刺免费代理网站为例（ &lt;a href=&quot;http://www.xicidaili.com&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.xicidaili.com&lt;/a&gt; ），说明用scrapy框架写一个爬虫的基本流程。其中已实现mysql存储。&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h3 id=&quot;简易爬虫编写&quot;&gt;&lt;a href=&quot;#简易爬虫编写&quot; class=&quot;headerlink&quot; title=&quot;简易爬虫编写&quot;&gt;&lt;/a&gt;简易爬虫编写&lt;/h3&gt;&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;新建一个工程&lt;/p&gt;
-&lt;p&gt; &lt;code&gt;scrapy startproject xici&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt; 生成如下目录：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;xici
-    scrapy.cfg  
-    xici
-        __init__.py  
-        items.py  
-        pipelines.py  
-        settings.py  
-        spiders
-            __init__.py
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;进入&lt;code&gt;xici&lt;/code&gt;项目目录，使用命令生成一个spider&lt;/p&gt;
-&lt;p&gt; &lt;code&gt;scrapy genspider xiciSpider xicidaili.com&lt;/code&gt; //生成一个爬取域名xicidaili.com，名字为xiciSpider的spider&lt;/p&gt;
-&lt;p&gt; 目录结构如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;xici
-    scrapy.cfg  
-    xici
-        __init__.py  
-        items.py  
-        pipelines.py  
-        settings.py  
-        spiders
-            __init__.py
-             xiciSpider.py    //新增文件
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;在items.py中XiciItem类中加入以下信息&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;class XiciItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()    
-    ip = scrapy.Field() 
-    port = scrapy.Field()
-    location = scrapy.Field()
-    anonymous = scrapy.Field()
-    pro_type = scrapy.Field()#是HHTP链接还是HTTPS链接
-    verify_time = scrapy.Field()  
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;在xiciSpider.py中新增以下内容&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;# -*- coding: utf-8 -*-        
-import scrapy                  
-from scrapy.selector import Selector 
-from xici.items import XiciItem
+&lt;h3 id=&quot;简易爬虫编写&quot;&gt;&lt;a href=&quot;#简易爬虫编写&quot; class=&quot;headerlink&quot; title=&quot;简易爬虫编写&quot;&gt;&lt;/a&gt;简易爬虫编写&lt;/h3&gt;&lt;h4 id=&quot;1-新建一个工程&quot;&gt;&lt;a href=&quot;#1-新建一个工程&quot; class=&quot;headerlink&quot; title=&quot;1. 新建一个工程&quot;&gt;&lt;/a&gt;1. 新建一个工程&lt;/h4&gt;&lt;p&gt;&lt;code&gt;scrapy startproject xici&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;生成如下目录：&lt;/p&gt;
+&lt;figure class=&quot;highlight stylus&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;xici&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	scrapy&lt;span class=&quot;selector-class&quot;&gt;.cfg&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	xici&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		__init__&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		items&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		pipelines&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		settings&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		spiders&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			__init__.py&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h4 id=&quot;2-生成一个spider&quot;&gt;&lt;a href=&quot;#2-生成一个spider&quot; class=&quot;headerlink&quot; title=&quot;2. 生成一个spider&quot;&gt;&lt;/a&gt;2. 生成一个spider&lt;/h4&gt;&lt;p&gt;进入&lt;code&gt;xici&lt;/code&gt;项目目录，使用命令生成一个spider&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;`scrapy genspider xiciSpider xicidaili.com` //生成一个爬取域名xicidaili.com，名字为xiciSpider的spider
 
-class XicispiderSpider(scrapy.Spider):
-    name = &amp;quot;xiciSpider&amp;quot;
-    allowed_domains = [&amp;quot;xicidaili.com&amp;quot;]
-    start_urls = (             
-            &amp;apos;http://www.xicidaili.com/nn/&amp;apos;, 
-            &amp;apos;http://www.xicidaili.com/nt/&amp;apos;  
-    )
-
-    def parse(self, response):
-        sel=Selector(response)
-        items = []
-        flag = 0; 
-        trs = sel.xpath(&amp;apos;//*[@id=&amp;quot;ip_list&amp;quot;]/tr&amp;apos;)
-        for i in range(1,len(trs)):     
-            item = XiciItem()
-            tr = trs[i]
-            item[&amp;apos;ip&amp;apos;] = tr.xpath(&amp;quot;td[3]/text()&amp;quot;).extract()
-            item[&amp;apos;port&amp;apos;] = tr.xpath(&amp;quot;td[4]/text()&amp;quot;).extract()
-            item[&amp;apos;location&amp;apos;] = tr.xpath(&amp;quot;td[5]/a/text()&amp;quot;).extract() and \
-                    tr.xpath(&amp;quot;td[5]/a/text()&amp;quot;).extract() or tr.xpath(&amp;quot;td[5]/text()&amp;quot;).extract() #不同页面获取location的xpath不同
-            item[&amp;apos;anonymous&amp;apos;] = tr.xpath(&amp;quot;td[6]/text()&amp;quot;).extract()
-            item[&amp;apos;pro_type&amp;apos;] = tr.xpath(&amp;quot;td[7]/text()&amp;quot;).extract()
-            item[&amp;apos;verify_time&amp;apos;] = tr.xpath(&amp;quot;td[10]/text()&amp;quot;).extract()
-            items.append(item)
-        return items
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;/ol&gt;
+目录结构如下：
+&lt;/code&gt;&lt;/pre&gt;&lt;figure class=&quot;highlight stylus&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;xici&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	scrapy&lt;span class=&quot;selector-class&quot;&gt;.cfg&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	xici&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		__init__&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		items&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		pipelines&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		settings&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		spiders&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			__init__&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			 xiciSpider&lt;span class=&quot;selector-class&quot;&gt;.py&lt;/span&gt;	&lt;span class=&quot;comment&quot;&gt;//新增文件&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h4 id=&quot;3-编写item&quot;&gt;&lt;a href=&quot;#3-编写item&quot; class=&quot;headerlink&quot; title=&quot;3. 编写item&quot;&gt;&lt;/a&gt;3. 编写item&lt;/h4&gt;&lt;p&gt;在items.py中XiciItem类中加入以下信息&lt;/p&gt;
+&lt;figure class=&quot;highlight nix&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;class XiciItem(scrapy.Item):&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;comment&quot;&gt;# define the fields for your item here like:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;comment&quot;&gt;# name = scrapy.Field()    &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;attr&quot;&gt;ip&lt;/span&gt; = scrapy.Field() &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;attr&quot;&gt;port&lt;/span&gt; = scrapy.Field()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;attr&quot;&gt;location&lt;/span&gt; = scrapy.Field()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;attr&quot;&gt;anonymous&lt;/span&gt; = scrapy.Field()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;attr&quot;&gt;pro_type&lt;/span&gt; = scrapy.Field()&lt;span class=&quot;comment&quot;&gt;#是HHTP链接还是HTTPS链接&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;attr&quot;&gt;verify_time&lt;/span&gt; = scrapy.Field()&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h4 id=&quot;4-编写spider&quot;&gt;&lt;a href=&quot;#4-编写spider&quot; class=&quot;headerlink&quot; title=&quot;4. 编写spider&quot;&gt;&lt;/a&gt;4. 编写spider&lt;/h4&gt;&lt;p&gt;在xiciSpider.py中新增以下内容&lt;/p&gt;
+&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;31&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# -*- coding: utf-8 -*-        &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; scrapy                  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; scrapy.selector &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Selector &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; xici.items &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; XiciItem&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;XicispiderSpider&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(scrapy.Spider)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    name = &lt;span class=&quot;string&quot;&gt;&quot;xiciSpider&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    allowed_domains = [&lt;span class=&quot;string&quot;&gt;&quot;xicidaili.com&quot;&lt;/span&gt;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    start_urls = (             &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            &lt;span class=&quot;string&quot;&gt;&#39;http://www.xicidaili.com/nn/&#39;&lt;/span&gt;, &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            &lt;span class=&quot;string&quot;&gt;&#39;http://www.xicidaili.com/nt/&#39;&lt;/span&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    )&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self, response)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        sel=Selector(response)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        items = []&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        flag = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        trs = sel.xpath(&lt;span class=&quot;string&quot;&gt;&#39;//*[@id=&quot;ip_list&quot;]/tr&#39;&lt;/span&gt;)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; i &lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt; range(&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;,len(trs)):     &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            item = XiciItem()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            tr = trs[i]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            item[&lt;span class=&quot;string&quot;&gt;&#39;ip&#39;&lt;/span&gt;] = tr.xpath(&lt;span class=&quot;string&quot;&gt;&quot;td[3]/text()&quot;&lt;/span&gt;).extract()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            item[&lt;span class=&quot;string&quot;&gt;&#39;port&#39;&lt;/span&gt;] = tr.xpath(&lt;span class=&quot;string&quot;&gt;&quot;td[4]/text()&quot;&lt;/span&gt;).extract()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            item[&lt;span class=&quot;string&quot;&gt;&#39;location&#39;&lt;/span&gt;] = tr.xpath(&lt;span class=&quot;string&quot;&gt;&quot;td[5]/a/text()&quot;&lt;/span&gt;).extract() &lt;span class=&quot;keyword&quot;&gt;and&lt;/span&gt; \&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;                    tr.xpath(&lt;span class=&quot;string&quot;&gt;&quot;td[5]/a/text()&quot;&lt;/span&gt;).extract() &lt;span class=&quot;keyword&quot;&gt;or&lt;/span&gt; tr.xpath(&lt;span class=&quot;string&quot;&gt;&quot;td[5]/text()&quot;&lt;/span&gt;).extract() &lt;span class=&quot;comment&quot;&gt;#不同页面获取location的xpath不同&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            item[&lt;span class=&quot;string&quot;&gt;&#39;anonymous&#39;&lt;/span&gt;] = tr.xpath(&lt;span class=&quot;string&quot;&gt;&quot;td[6]/text()&quot;&lt;/span&gt;).extract()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            item[&lt;span class=&quot;string&quot;&gt;&#39;pro_type&#39;&lt;/span&gt;] = tr.xpath(&lt;span class=&quot;string&quot;&gt;&quot;td[7]/text()&quot;&lt;/span&gt;).extract()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            item[&lt;span class=&quot;string&quot;&gt;&#39;verify_time&#39;&lt;/span&gt;] = tr.xpath(&lt;span class=&quot;string&quot;&gt;&quot;td[10]/text()&quot;&lt;/span&gt;).extract()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            items.append(item)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; items&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;pre&gt;&lt;code&gt;- `name`: Spider的标识。它必须是唯一的, 那就是说,你不能在不同的Spiders中设置相同的名字。
 - `start_urls`：Spider将会去爬这些URLs的列表。所以刚开始的下载页面将要包含在这些列表中。其他子URL将会从这些起始URL中继承性生成。
 - `parse()`:每一个URL爬取完成默认调用的处理函数, 这个方法负责解析response数据和提出抓取的数据(作为抓取的items)。
-&lt;/code&gt;&lt;/pre&gt;&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;运行命令进行爬取&lt;/p&gt;
-&lt;p&gt; &lt;code&gt;scrapy crawl xiciSpider //运行爬虫&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt; &lt;code&gt;scrapy crawl xiciSpider -o ips.json //将提取的结果以json格式（自动转换）存储到ips.json文件中&lt;/code&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;scrapy 内置支持如下格式： ‘xml’, ‘jl’, ‘json’, ‘jsonlines’, ‘csv’, ‘pickle’, ‘marshal’&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&quot;将爬取的内容存储到数据库&quot;&gt;&lt;a href=&quot;#将爬取的内容存储到数据库&quot; class=&quot;headerlink&quot; title=&quot;将爬取的内容存储到数据库&quot;&gt;&lt;/a&gt;将爬取的内容存储到数据库&lt;/h3&gt;&lt;p&gt;本示例以mysql为例&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;在pipeline.py中加入数据库存储的相关代码&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;# -*- coding: utf-8 -*-
+&lt;/code&gt;&lt;/pre&gt;&lt;h4 id=&quot;5-运行爬虫&quot;&gt;&lt;a href=&quot;#5-运行爬虫&quot; class=&quot;headerlink&quot; title=&quot;5. 运行爬虫&quot;&gt;&lt;/a&gt;5. 运行爬虫&lt;/h4&gt;&lt;p&gt;输入以下命令进行文件爬取&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;`scrapy crawl xiciSpider //运行爬虫`
 
-# Define your item pipelines here
-#
-# Don&amp;apos;t forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+`scrapy crawl xiciSpider -o ips.json //将提取的结果以json格式（自动转换）存储到ips.json文件中`
 
-from scrapy import log
-from twisted.enterprise import adbapi
-from scrapy.http import Request
-import json
-import codecs
-import MySQLdb
-import MySQLdb.cursors
-
-class XiciPipeline(object):
-    def process_item(self, item, spider):
-        return item
-
-class MySQLStoreIPPipeline(object):
-    def __init__(self):
-        self.dbpool = adbapi.ConnectionPool(&amp;apos;MySQLdb&amp;apos;,
-        host = &amp;apos;127.0.0.1&amp;apos;, #settings[&amp;apos;MYSQL_HOST&amp;apos;],
-        port = 3306,
-        db = &amp;apos;agent_ip&amp;apos;, #settings[&amp;apos;MYSQL_DBNAME&amp;apos;],
-        user = &amp;apos;root&amp;apos;,#settings[&amp;apos;MYSQL_USER&amp;apos;],
-        passwd = &amp;apos;root&amp;apos;,#settings[&amp;apos;MYSQL_PASSWD&amp;apos;], 
-        cursorclass = MySQLdb.cursors.DictCursor,
-        charset = &amp;apos;utf8&amp;apos;,
-        use_unicode = True
-    )
-
-    def process_item(self, item, spider):
-        query = self.dbpool.runInteraction(self._conditional_insert, item,spider)
-        query.addErrback(self.handle_error)
-        return item
-
-    def _conditional_insert(self,tx,item,spider):
-        tx.execute(&amp;quot;select * from ips where ip= %s&amp;quot;,(item[&amp;apos;ip&amp;apos;][0],))
-        result=tx.fetchone()
-        log.msg(result)
-        if result:
-            log.msg(&amp;quot;Item already stored in db:%s&amp;quot; % item,level=log.DEBUG)
-        else: 
-            tx.execute(&amp;quot;insert into ips (ip,port,location,anonymous,pro_type,verify_time) values (%s,%s,%s,%s,%s,%s)&amp;quot;,\
-                    (item[&amp;apos;ip&amp;apos;][0],item[&amp;apos;port&amp;apos;][0],item[&amp;apos;location&amp;apos;][0],item[&amp;apos;anonymous&amp;apos;][0],item[&amp;apos;pro_type&amp;apos;][0],item[&amp;apos;verify_time&amp;apos;][0]))
-            log.msg(&amp;quot;Item stored in db: %s&amp;quot; % item, level=log.DEBUG)
-
-        def handle_error(self, e):
-            log.err(e)
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-&lt;/ol&gt;
+&amp;gt; scrapy 内置支持如下格式： &amp;apos;xml&amp;apos;, &amp;apos;jl&amp;apos;, &amp;apos;json&amp;apos;, &amp;apos;jsonlines&amp;apos;, &amp;apos;csv&amp;apos;, &amp;apos;pickle&amp;apos;, &amp;apos;marshal&amp;apos;
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;将爬取的内容存储到数据库&quot;&gt;&lt;a href=&quot;#将爬取的内容存储到数据库&quot; class=&quot;headerlink&quot; title=&quot;将爬取的内容存储到数据库&quot;&gt;&lt;/a&gt;将爬取的内容存储到数据库&lt;/h3&gt;&lt;p&gt;本示例以mysql为例&lt;/p&gt;
+&lt;h4 id=&quot;1-pipeline编写&quot;&gt;&lt;a href=&quot;#1-pipeline编写&quot; class=&quot;headerlink&quot; title=&quot;1. pipeline编写&quot;&gt;&lt;/a&gt;1. pipeline编写&lt;/h4&gt;&lt;p&gt;在pipeline.py中加入数据库存储的相关代码&lt;/p&gt;
+&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;36&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;37&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;38&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;39&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;40&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;41&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;42&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;43&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;44&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;45&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;46&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;47&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;48&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;49&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;50&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;51&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;	&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# -*- coding: utf-8 -*-&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# Define your item pipelines here&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# Don&#39;t forget to add your pipeline to the ITEM_PIPELINES setting&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; scrapy &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; log&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; twisted.enterprise &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; adbapi&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; scrapy.http &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Request&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; json&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; codecs&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; MySQLdb&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; MySQLdb.cursors&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;XiciPipeline&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(object)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;process_item&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self, item, spider)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; item&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;MySQLStoreIPPipeline&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(object)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;__init__&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        self.dbpool = adbapi.ConnectionPool(&lt;span class=&quot;string&quot;&gt;&#39;MySQLdb&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        host = &lt;span class=&quot;string&quot;&gt;&#39;127.0.0.1&#39;&lt;/span&gt;, &lt;span class=&quot;comment&quot;&gt;#settings[&#39;MYSQL_HOST&#39;],&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        port = &lt;span class=&quot;number&quot;&gt;3306&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        db = &lt;span class=&quot;string&quot;&gt;&#39;agent_ip&#39;&lt;/span&gt;, &lt;span class=&quot;comment&quot;&gt;#settings[&#39;MYSQL_DBNAME&#39;],&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        user = &lt;span class=&quot;string&quot;&gt;&#39;root&#39;&lt;/span&gt;,&lt;span class=&quot;comment&quot;&gt;#settings[&#39;MYSQL_USER&#39;],&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        passwd = &lt;span class=&quot;string&quot;&gt;&#39;root&#39;&lt;/span&gt;,&lt;span class=&quot;comment&quot;&gt;#settings[&#39;MYSQL_PASSWD&#39;], &lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        cursorclass = MySQLdb.cursors.DictCursor,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        charset = &lt;span class=&quot;string&quot;&gt;&#39;utf8&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        use_unicode = &lt;span class=&quot;keyword&quot;&gt;True&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    )&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;                                            &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;process_item&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self, item, spider)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        query = self.dbpool.runInteraction(self._conditional_insert, item,spider)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        query.addErrback(self.handle_error)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; item&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;                                                                                                    &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;_conditional_insert&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self,tx,item,spider)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        tx.execute(&lt;span class=&quot;string&quot;&gt;&quot;select * from ips where ip= %s&quot;&lt;/span&gt;,(item[&lt;span class=&quot;string&quot;&gt;&#39;ip&#39;&lt;/span&gt;][&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;],))&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        result=tx.fetchone()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        log.msg(result)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; result:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            log.msg(&lt;span class=&quot;string&quot;&gt;&quot;Item already stored in db:%s&quot;&lt;/span&gt; % item,level=log.DEBUG)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt;: &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            tx.execute(&lt;span class=&quot;string&quot;&gt;&quot;insert into ips (ip,port,location,anonymous,pro_type,verify_time) values (%s,%s,%s,%s,%s,%s)&quot;&lt;/span&gt;,\&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;                    (item[&lt;span class=&quot;string&quot;&gt;&#39;ip&#39;&lt;/span&gt;][&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;],item[&lt;span class=&quot;string&quot;&gt;&#39;port&#39;&lt;/span&gt;][&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;],item[&lt;span class=&quot;string&quot;&gt;&#39;location&#39;&lt;/span&gt;][&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;],item[&lt;span class=&quot;string&quot;&gt;&#39;anonymous&#39;&lt;/span&gt;][&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;],item[&lt;span class=&quot;string&quot;&gt;&#39;pro_type&#39;&lt;/span&gt;][&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;],item[&lt;span class=&quot;string&quot;&gt;&#39;verify_time&#39;&lt;/span&gt;][&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;]))&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            log.msg(&lt;span class=&quot;string&quot;&gt;&quot;Item stored in db: %s&quot;&lt;/span&gt; % item, level=log.DEBUG)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;handle_error&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self, e)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            log.err(e)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;pre&gt;&lt;code&gt;&amp;gt; 以上代码中定义了类MySQLStoreIPPipeline,调用该pipeline时会自动调用其`process_item`方法
 
 &amp;gt; 每个item pipeline组件都需要调用`process_item`方法，这个方法必须返回一个 Item (或任何继承类)对象， 或是抛出 DropItem 异常，被丢弃的item将不会被之后的pipeline组件所处理。
-&lt;/code&gt;&lt;/pre&gt;&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;在settings.py中加入如下配置&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;ITEM_PIPELINES = {
-    &amp;apos;xici.pipelines.MySQLStoreIPPipeline&amp;apos;:300
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;blockquote&gt;
-&lt;p&gt;以上配置是显示声明调用MySQLStoreIPPipeline，如果不加入该项配置，即使在pipeline.py中定义了该类，spider也不会调用&lt;/p&gt;
-&lt;p&gt;类后面的整型值，确定了其运行的顺序，item按数字从低到高的顺序，通过pipeline，通常将这些数字定义在0-1000范围内&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-</content>
+&lt;/code&gt;&lt;/pre&gt;&lt;h4 id=&quot;2-配置settings-py文件&quot;&gt;&lt;a href=&quot;#2-配置settings-py文件&quot; class=&quot;headerlink&quot; title=&quot;2. 配置settings.py文件&quot;&gt;&lt;/a&gt;2. 配置settings.py文件&lt;/h4&gt;&lt;p&gt;在settings.py中加入如下配置&lt;/p&gt;
+&lt;figure class=&quot;highlight xquery&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;ITEM_PIPELINES = &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;string&quot;&gt;&#39;xici.pipelines.MySQLStoreIPPipeline&#39;&lt;/span&gt;:&lt;span class=&quot;number&quot;&gt;300&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;pre&gt;&lt;code&gt;&amp;gt; 以上配置是显示声明调用MySQLStoreIPPipeline，如果不加入该项配置，即使在pipeline.py中定义了该类，spider也不会调用
+&amp;gt; 
+&amp;gt; 类后面的整型值，确定了其运行的顺序，item按数字从低到高的顺序，通过pipeline，通常将这些数字定义在0-1000范围内
+&lt;/code&gt;&lt;/pre&gt;</content>
     
     <summary type="html">
     
-      &lt;p&gt;本节示例以爬取西刺免费代理网站为例（ &lt;a href=&quot;http://www.xicidaili.com&quot;&gt;http://www.xicidaili.com&lt;/a&gt; ），说明用scrapy框架写一个爬虫的基本流程。其中已实现数据库存储。&lt;/p&gt;
+      &lt;p&gt;本节示例以爬取西刺免费代理网站为例（ &lt;a href=&quot;http://www.xicidaili.com&quot;&gt;http://www.xicidaili.com&lt;/a&gt; ），说明用scrapy框架写一个爬虫的基本流程。其中已实现mysql存储。&lt;/p&gt;
     
     </summary>
     

@@ -5,16 +5,16 @@
   
   <title>scrapy写第一个爬虫 | cilab-undefine的小窝</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="本节示例以爬取西刺免费代理网站为例（ http://www.xicidaili.com ），说明用scrapy框架写一个爬虫的基本流程。其中已实现数据库存储。">
+  <meta name="description" content="本节示例以爬取西刺免费代理网站为例（ http://www.xicidaili.com ），说明用scrapy框架写一个爬虫的基本流程。其中已实现mysql存储。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="scrapy写第一个爬虫">
 <meta property="og:url" content="http://cilab-undefine.github.io/2016/01/16/2016-01-16-scrapy写第一个爬虫/index.html">
 <meta property="og:site_name" content="cilab-undefine的小窝">
-<meta property="og:description" content="本节示例以爬取西刺免费代理网站为例（ http://www.xicidaili.com ），说明用scrapy框架写一个爬虫的基本流程。其中已实现数据库存储。">
-<meta property="og:updated_time" content="2016-02-28T11:16:36.695Z">
+<meta property="og:description" content="本节示例以爬取西刺免费代理网站为例（ http://www.xicidaili.com ），说明用scrapy框架写一个爬虫的基本流程。其中已实现mysql存储。">
+<meta property="og:updated_time" content="2016-02-28T13:17:15.322Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="scrapy写第一个爬虫">
-<meta name="twitter:description" content="本节示例以爬取西刺免费代理网站为例（ http://www.xicidaili.com ），说明用scrapy框架写一个爬虫的基本流程。其中已实现数据库存储。">
+<meta name="twitter:description" content="本节示例以爬取西刺免费代理网站为例（ http://www.xicidaili.com ），说明用scrapy框架写一个爬虫的基本流程。其中已实现mysql存储。">
   
     <link rel="alternative" href="/atom.xml" title="cilab-undefine的小窝" type="application/atom+xml">
   
@@ -234,162 +234,41 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>本节示例以爬取西刺免费代理网站为例（ <a href="http://www.xicidaili.com" target="_blank" rel="external">http://www.xicidaili.com</a> ），说明用scrapy框架写一个爬虫的基本流程。其中已实现数据库存储。</p>
+        <p>本节示例以爬取西刺免费代理网站为例（ <a href="http://www.xicidaili.com" target="_blank" rel="external">http://www.xicidaili.com</a> ），说明用scrapy框架写一个爬虫的基本流程。其中已实现mysql存储。</p>
 <a id="more"></a>
-<h3 id="简易爬虫编写"><a href="#简易爬虫编写" class="headerlink" title="简易爬虫编写"></a>简易爬虫编写</h3><ol>
-<li><p>新建一个工程</p>
-<p> <code>scrapy startproject xici</code></p>
-<p> 生成如下目录：</p>
-<pre><code>xici
-    scrapy.cfg  
-    xici
-        __init__.py  
-        items.py  
-        pipelines.py  
-        settings.py  
-        spiders
-            __init__.py
-</code></pre></li>
-<li><p>进入<code>xici</code>项目目录，使用命令生成一个spider</p>
-<p> <code>scrapy genspider xiciSpider xicidaili.com</code> //生成一个爬取域名xicidaili.com，名字为xiciSpider的spider</p>
-<p> 目录结构如下：</p>
-<pre><code>xici
-    scrapy.cfg  
-    xici
-        __init__.py  
-        items.py  
-        pipelines.py  
-        settings.py  
-        spiders
-            __init__.py
-             xiciSpider.py    //新增文件
-</code></pre></li>
-<li><p>在items.py中XiciItem类中加入以下信息</p>
-<pre><code>class XiciItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()    
-    ip = scrapy.Field() 
-    port = scrapy.Field()
-    location = scrapy.Field()
-    anonymous = scrapy.Field()
-    pro_type = scrapy.Field()#是HHTP链接还是HTTPS链接
-    verify_time = scrapy.Field()  
-</code></pre></li>
-<li><p>在xiciSpider.py中新增以下内容</p>
-<pre><code># -*- coding: utf-8 -*-        
-import scrapy                  
-from scrapy.selector import Selector 
-from xici.items import XiciItem
+<h3 id="简易爬虫编写"><a href="#简易爬虫编写" class="headerlink" title="简易爬虫编写"></a>简易爬虫编写</h3><h4 id="1-新建一个工程"><a href="#1-新建一个工程" class="headerlink" title="1. 新建一个工程"></a>1. 新建一个工程</h4><p><code>scrapy startproject xici</code></p>
+<p>生成如下目录：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">xici</span><br><span class="line">	scrapy<span class="selector-class">.cfg</span>  </span><br><span class="line">	xici</span><br><span class="line">		__init__<span class="selector-class">.py</span>  </span><br><span class="line">		items<span class="selector-class">.py</span>  </span><br><span class="line">		pipelines<span class="selector-class">.py</span>  </span><br><span class="line">		settings<span class="selector-class">.py</span>  </span><br><span class="line">		spiders</span><br><span class="line">			__init__.py</span><br></pre></td></tr></table></figure>
+<h4 id="2-生成一个spider"><a href="#2-生成一个spider" class="headerlink" title="2. 生成一个spider"></a>2. 生成一个spider</h4><p>进入<code>xici</code>项目目录，使用命令生成一个spider</p>
+<pre><code>`scrapy genspider xiciSpider xicidaili.com` //生成一个爬取域名xicidaili.com，名字为xiciSpider的spider
 
-class XicispiderSpider(scrapy.Spider):
-    name = &quot;xiciSpider&quot;
-    allowed_domains = [&quot;xicidaili.com&quot;]
-    start_urls = (             
-            &apos;http://www.xicidaili.com/nn/&apos;, 
-            &apos;http://www.xicidaili.com/nt/&apos;  
-    )
-
-    def parse(self, response):
-        sel=Selector(response)
-        items = []
-        flag = 0; 
-        trs = sel.xpath(&apos;//*[@id=&quot;ip_list&quot;]/tr&apos;)
-        for i in range(1,len(trs)):     
-            item = XiciItem()
-            tr = trs[i]
-            item[&apos;ip&apos;] = tr.xpath(&quot;td[3]/text()&quot;).extract()
-            item[&apos;port&apos;] = tr.xpath(&quot;td[4]/text()&quot;).extract()
-            item[&apos;location&apos;] = tr.xpath(&quot;td[5]/a/text()&quot;).extract() and \
-                    tr.xpath(&quot;td[5]/a/text()&quot;).extract() or tr.xpath(&quot;td[5]/text()&quot;).extract() #不同页面获取location的xpath不同
-            item[&apos;anonymous&apos;] = tr.xpath(&quot;td[6]/text()&quot;).extract()
-            item[&apos;pro_type&apos;] = tr.xpath(&quot;td[7]/text()&quot;).extract()
-            item[&apos;verify_time&apos;] = tr.xpath(&quot;td[10]/text()&quot;).extract()
-            items.append(item)
-        return items
-</code></pre></li>
-</ol>
+目录结构如下：
+</code></pre><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">xici</span><br><span class="line">	scrapy<span class="selector-class">.cfg</span>  </span><br><span class="line">	xici</span><br><span class="line">		__init__<span class="selector-class">.py</span>  </span><br><span class="line">		items<span class="selector-class">.py</span>  </span><br><span class="line">		pipelines<span class="selector-class">.py</span>  </span><br><span class="line">		settings<span class="selector-class">.py</span>  </span><br><span class="line">		spiders</span><br><span class="line">			__init__<span class="selector-class">.py</span></span><br><span class="line">			 xiciSpider<span class="selector-class">.py</span>	<span class="comment">//新增文件</span></span><br></pre></td></tr></table></figure>
+<h4 id="3-编写item"><a href="#3-编写item" class="headerlink" title="3. 编写item"></a>3. 编写item</h4><p>在items.py中XiciItem类中加入以下信息</p>
+<figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">class XiciItem(scrapy.Item):</span><br><span class="line">    <span class="comment"># define the fields for your item here like:</span></span><br><span class="line">    <span class="comment"># name = scrapy.Field()    </span></span><br><span class="line">    <span class="attr">ip</span> = scrapy.Field() </span><br><span class="line">    <span class="attr">port</span> = scrapy.Field()</span><br><span class="line">    <span class="attr">location</span> = scrapy.Field()</span><br><span class="line">    <span class="attr">anonymous</span> = scrapy.Field()</span><br><span class="line">    <span class="attr">pro_type</span> = scrapy.Field()<span class="comment">#是HHTP链接还是HTTPS链接</span></span><br><span class="line">    <span class="attr">verify_time</span> = scrapy.Field()</span><br></pre></td></tr></table></figure>
+<h4 id="4-编写spider"><a href="#4-编写spider" class="headerlink" title="4. 编写spider"></a>4. 编写spider</h4><p>在xiciSpider.py中新增以下内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-        </span></span><br><span class="line"><span class="keyword">import</span> scrapy                  </span><br><span class="line"><span class="keyword">from</span> scrapy.selector <span class="keyword">import</span> Selector </span><br><span class="line"><span class="keyword">from</span> xici.items <span class="keyword">import</span> XiciItem</span><br><span class="line">    </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">XicispiderSpider</span><span class="params">(scrapy.Spider)</span>:</span></span><br><span class="line">    name = <span class="string">"xiciSpider"</span></span><br><span class="line">    allowed_domains = [<span class="string">"xicidaili.com"</span>]</span><br><span class="line">    start_urls = (             </span><br><span class="line">            <span class="string">'http://www.xicidaili.com/nn/'</span>, </span><br><span class="line">            <span class="string">'http://www.xicidaili.com/nt/'</span>  </span><br><span class="line">    )</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parse</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        sel=Selector(response)</span><br><span class="line">        items = []</span><br><span class="line">        flag = <span class="number">0</span>; </span><br><span class="line">        trs = sel.xpath(<span class="string">'//*[@id="ip_list"]/tr'</span>)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,len(trs)):     </span><br><span class="line">            item = XiciItem()</span><br><span class="line">            tr = trs[i]</span><br><span class="line">            item[<span class="string">'ip'</span>] = tr.xpath(<span class="string">"td[3]/text()"</span>).extract()</span><br><span class="line">            item[<span class="string">'port'</span>] = tr.xpath(<span class="string">"td[4]/text()"</span>).extract()</span><br><span class="line">            item[<span class="string">'location'</span>] = tr.xpath(<span class="string">"td[5]/a/text()"</span>).extract() <span class="keyword">and</span> \</span><br><span class="line">                    tr.xpath(<span class="string">"td[5]/a/text()"</span>).extract() <span class="keyword">or</span> tr.xpath(<span class="string">"td[5]/text()"</span>).extract() <span class="comment">#不同页面获取location的xpath不同</span></span><br><span class="line">            item[<span class="string">'anonymous'</span>] = tr.xpath(<span class="string">"td[6]/text()"</span>).extract()</span><br><span class="line">            item[<span class="string">'pro_type'</span>] = tr.xpath(<span class="string">"td[7]/text()"</span>).extract()</span><br><span class="line">            item[<span class="string">'verify_time'</span>] = tr.xpath(<span class="string">"td[10]/text()"</span>).extract()</span><br><span class="line">            items.append(item)</span><br><span class="line">        <span class="keyword">return</span> items</span><br></pre></td></tr></table></figure>
 <pre><code>- `name`: Spider的标识。它必须是唯一的, 那就是说,你不能在不同的Spiders中设置相同的名字。
 - `start_urls`：Spider将会去爬这些URLs的列表。所以刚开始的下载页面将要包含在这些列表中。其他子URL将会从这些起始URL中继承性生成。
 - `parse()`:每一个URL爬取完成默认调用的处理函数, 这个方法负责解析response数据和提出抓取的数据(作为抓取的items)。
-</code></pre><ol>
-<li><p>运行命令进行爬取</p>
-<p> <code>scrapy crawl xiciSpider //运行爬虫</code></p>
-<p> <code>scrapy crawl xiciSpider -o ips.json //将提取的结果以json格式（自动转换）存储到ips.json文件中</code></p>
-<blockquote>
-<p>scrapy 内置支持如下格式： ‘xml’, ‘jl’, ‘json’, ‘jsonlines’, ‘csv’, ‘pickle’, ‘marshal’</p>
-</blockquote>
-</li>
-</ol>
-<h3 id="将爬取的内容存储到数据库"><a href="#将爬取的内容存储到数据库" class="headerlink" title="将爬取的内容存储到数据库"></a>将爬取的内容存储到数据库</h3><p>本示例以mysql为例</p>
-<ol>
-<li><p>在pipeline.py中加入数据库存储的相关代码</p>
-<pre><code># -*- coding: utf-8 -*-
+</code></pre><h4 id="5-运行爬虫"><a href="#5-运行爬虫" class="headerlink" title="5. 运行爬虫"></a>5. 运行爬虫</h4><p>输入以下命令进行文件爬取</p>
+<pre><code>`scrapy crawl xiciSpider //运行爬虫`
 
-# Define your item pipelines here
-#
-# Don&apos;t forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+`scrapy crawl xiciSpider -o ips.json //将提取的结果以json格式（自动转换）存储到ips.json文件中`
 
-from scrapy import log
-from twisted.enterprise import adbapi
-from scrapy.http import Request
-import json
-import codecs
-import MySQLdb
-import MySQLdb.cursors
-
-class XiciPipeline(object):
-    def process_item(self, item, spider):
-        return item
-
-class MySQLStoreIPPipeline(object):
-    def __init__(self):
-        self.dbpool = adbapi.ConnectionPool(&apos;MySQLdb&apos;,
-        host = &apos;127.0.0.1&apos;, #settings[&apos;MYSQL_HOST&apos;],
-        port = 3306,
-        db = &apos;agent_ip&apos;, #settings[&apos;MYSQL_DBNAME&apos;],
-        user = &apos;root&apos;,#settings[&apos;MYSQL_USER&apos;],
-        passwd = &apos;root&apos;,#settings[&apos;MYSQL_PASSWD&apos;], 
-        cursorclass = MySQLdb.cursors.DictCursor,
-        charset = &apos;utf8&apos;,
-        use_unicode = True
-    )
-
-    def process_item(self, item, spider):
-        query = self.dbpool.runInteraction(self._conditional_insert, item,spider)
-        query.addErrback(self.handle_error)
-        return item
-
-    def _conditional_insert(self,tx,item,spider):
-        tx.execute(&quot;select * from ips where ip= %s&quot;,(item[&apos;ip&apos;][0],))
-        result=tx.fetchone()
-        log.msg(result)
-        if result:
-            log.msg(&quot;Item already stored in db:%s&quot; % item,level=log.DEBUG)
-        else: 
-            tx.execute(&quot;insert into ips (ip,port,location,anonymous,pro_type,verify_time) values (%s,%s,%s,%s,%s,%s)&quot;,\
-                    (item[&apos;ip&apos;][0],item[&apos;port&apos;][0],item[&apos;location&apos;][0],item[&apos;anonymous&apos;][0],item[&apos;pro_type&apos;][0],item[&apos;verify_time&apos;][0]))
-            log.msg(&quot;Item stored in db: %s&quot; % item, level=log.DEBUG)
-
-        def handle_error(self, e):
-            log.err(e)
-</code></pre></li>
-</ol>
+&gt; scrapy 内置支持如下格式： &apos;xml&apos;, &apos;jl&apos;, &apos;json&apos;, &apos;jsonlines&apos;, &apos;csv&apos;, &apos;pickle&apos;, &apos;marshal&apos;
+</code></pre><h3 id="将爬取的内容存储到数据库"><a href="#将爬取的内容存储到数据库" class="headerlink" title="将爬取的内容存储到数据库"></a>将爬取的内容存储到数据库</h3><p>本示例以mysql为例</p>
+<h4 id="1-pipeline编写"><a href="#1-pipeline编写" class="headerlink" title="1. pipeline编写"></a>1. pipeline编写</h4><p>在pipeline.py中加入数据库存储的相关代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">	</span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Define your item pipelines here</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Don't forget to add your pipeline to the ITEM_PIPELINES setting</span></span><br><span class="line"><span class="comment"># See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scrapy <span class="keyword">import</span> log</span><br><span class="line"><span class="keyword">from</span> twisted.enterprise <span class="keyword">import</span> adbapi</span><br><span class="line"><span class="keyword">from</span> scrapy.http <span class="keyword">import</span> Request</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"><span class="keyword">import</span> MySQLdb</span><br><span class="line"><span class="keyword">import</span> MySQLdb.cursors</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">XiciPipeline</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process_item</span><span class="params">(self, item, spider)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> item</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MySQLStoreIPPipeline</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.dbpool = adbapi.ConnectionPool(<span class="string">'MySQLdb'</span>,</span><br><span class="line">        host = <span class="string">'127.0.0.1'</span>, <span class="comment">#settings['MYSQL_HOST'],</span></span><br><span class="line">        port = <span class="number">3306</span>,</span><br><span class="line">        db = <span class="string">'agent_ip'</span>, <span class="comment">#settings['MYSQL_DBNAME'],</span></span><br><span class="line">        user = <span class="string">'root'</span>,<span class="comment">#settings['MYSQL_USER'],</span></span><br><span class="line">        passwd = <span class="string">'root'</span>,<span class="comment">#settings['MYSQL_PASSWD'], </span></span><br><span class="line">        cursorclass = MySQLdb.cursors.DictCursor,</span><br><span class="line">        charset = <span class="string">'utf8'</span>,</span><br><span class="line">        use_unicode = <span class="keyword">True</span></span><br><span class="line">    )</span><br><span class="line">                                            </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process_item</span><span class="params">(self, item, spider)</span>:</span></span><br><span class="line">        query = self.dbpool.runInteraction(self._conditional_insert, item,spider)</span><br><span class="line">        query.addErrback(self.handle_error)</span><br><span class="line">        <span class="keyword">return</span> item</span><br><span class="line">                                                                                                    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_conditional_insert</span><span class="params">(self,tx,item,spider)</span>:</span></span><br><span class="line">        tx.execute(<span class="string">"select * from ips where ip= %s"</span>,(item[<span class="string">'ip'</span>][<span class="number">0</span>],))</span><br><span class="line">        result=tx.fetchone()</span><br><span class="line">        log.msg(result)</span><br><span class="line">        <span class="keyword">if</span> result:</span><br><span class="line">            log.msg(<span class="string">"Item already stored in db:%s"</span> % item,level=log.DEBUG)</span><br><span class="line">        <span class="keyword">else</span>: </span><br><span class="line">            tx.execute(<span class="string">"insert into ips (ip,port,location,anonymous,pro_type,verify_time) values (%s,%s,%s,%s,%s,%s)"</span>,\</span><br><span class="line">                    (item[<span class="string">'ip'</span>][<span class="number">0</span>],item[<span class="string">'port'</span>][<span class="number">0</span>],item[<span class="string">'location'</span>][<span class="number">0</span>],item[<span class="string">'anonymous'</span>][<span class="number">0</span>],item[<span class="string">'pro_type'</span>][<span class="number">0</span>],item[<span class="string">'verify_time'</span>][<span class="number">0</span>]))</span><br><span class="line">            log.msg(<span class="string">"Item stored in db: %s"</span> % item, level=log.DEBUG)</span><br><span class="line">        </span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">handle_error</span><span class="params">(self, e)</span>:</span></span><br><span class="line">            log.err(e)</span><br></pre></td></tr></table></figure>
 <pre><code>&gt; 以上代码中定义了类MySQLStoreIPPipeline,调用该pipeline时会自动调用其`process_item`方法
 
 &gt; 每个item pipeline组件都需要调用`process_item`方法，这个方法必须返回一个 Item (或任何继承类)对象， 或是抛出 DropItem 异常，被丢弃的item将不会被之后的pipeline组件所处理。
-</code></pre><ol>
-<li><p>在settings.py中加入如下配置</p>
-<pre><code>ITEM_PIPELINES = {
-    &apos;xici.pipelines.MySQLStoreIPPipeline&apos;:300
-}
-</code></pre><blockquote>
-<p>以上配置是显示声明调用MySQLStoreIPPipeline，如果不加入该项配置，即使在pipeline.py中定义了该类，spider也不会调用</p>
-<p>类后面的整型值，确定了其运行的顺序，item按数字从低到高的顺序，通过pipeline，通常将这些数字定义在0-1000范围内</p>
-</blockquote>
-</li>
-</ol>
-
+</code></pre><h4 id="2-配置settings-py文件"><a href="#2-配置settings-py文件" class="headerlink" title="2. 配置settings.py文件"></a>2. 配置settings.py文件</h4><p>在settings.py中加入如下配置</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ITEM_PIPELINES = &#123;</span><br><span class="line">    <span class="string">'xici.pipelines.MySQLStoreIPPipeline'</span>:<span class="number">300</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code>&gt; 以上配置是显示声明调用MySQLStoreIPPipeline，如果不加入该项配置，即使在pipeline.py中定义了该类，spider也不会调用
+&gt; 
+&gt; 类后面的整型值，确定了其运行的顺序，item按数字从低到高的顺序，通过pipeline，通常将这些数字定义在0-1000范围内
+</code></pre>
       
     </div>
     
@@ -400,7 +279,7 @@ class MySQLStoreIPPipeline(object):
         <p><span>本文标题:</span><a href="/2016/01/16/2016-01-16-scrapy写第一个爬虫/">scrapy写第一个爬虫</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 cilab-undefine 的个人博客">cilab-undefine</a></p>
         <p><span>发布时间:</span>2016年01月16日 - 12时56分</p>
-        <p><span>最后更新:</span>2016年02月28日 - 19时16分</p>
+        <p><span>最后更新:</span>2016年02月28日 - 21时17分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2016/01/16/2016-01-16-scrapy写第一个爬虫/" title="scrapy写第一个爬虫">http://cilab-undefine.github.io/2016/01/16/2016-01-16-scrapy写第一个爬虫/</a>
             <span class="copy-path" data-clipboard-text="原文: http://cilab-undefine.github.io/2016/01/16/2016-01-16-scrapy写第一个爬虫/　　作者: cilab-undefine" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -436,7 +315,7 @@ class MySQLStoreIPPipeline(object):
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#简易爬虫编写"><span class="toc-number">1.</span> <span class="toc-text">简易爬虫编写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将爬取的内容存储到数据库"><span class="toc-number">2.</span> <span class="toc-text">将爬取的内容存储到数据库</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#简易爬虫编写"><span class="toc-number">1.</span> <span class="toc-text">简易爬虫编写</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-新建一个工程"><span class="toc-number">1.1.</span> <span class="toc-text">1. 新建一个工程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-生成一个spider"><span class="toc-number">1.2.</span> <span class="toc-text">2. 生成一个spider</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-编写item"><span class="toc-number">1.3.</span> <span class="toc-text">3. 编写item</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-编写spider"><span class="toc-number">1.4.</span> <span class="toc-text">4. 编写spider</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-运行爬虫"><span class="toc-number">1.5.</span> <span class="toc-text">5. 运行爬虫</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将爬取的内容存储到数据库"><span class="toc-number">2.</span> <span class="toc-text">将爬取的内容存储到数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-pipeline编写"><span class="toc-number">2.1.</span> <span class="toc-text">1. pipeline编写</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-配置settings-py文件"><span class="toc-number">2.2.</span> <span class="toc-text">2. 配置settings.py文件</span></a></li></ol></li></ol>
 </div>
 <style>
     .left-col .switch-btn {
