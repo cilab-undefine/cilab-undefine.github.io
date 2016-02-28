@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>scrapy伪装浏览器及模拟登陆 | cilab-undefine的小窝</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文主要讲使用scrapy框架模拟登陆。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="scrapy伪装浏览器及模拟登陆">
+<meta property="og:url" content="http://cilab-undefine.github.io/2016/01/26/scrapy伪装浏览器及模拟登陆/index.html">
+<meta property="og:site_name" content="cilab-undefine的小窝">
+<meta property="og:description" content="本文主要讲使用scrapy框架模拟登陆。">
+<meta property="og:image" content="http://i.imgur.com/ArskX3S.png">
+<meta property="og:image" content="http://i.imgur.com/6DpBYiB.png">
+<meta property="og:updated_time" content="2016-02-28T10:54:08.899Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="scrapy伪装浏览器及模拟登陆">
+<meta name="twitter:description" content="本文主要讲使用scrapy框架模拟登陆。">
+<meta name="twitter:image" content="http://i.imgur.com/ArskX3S.png">
+  
+    <link rel="alternative" href="/atom.xml" title="cilab-undefine的小窝" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            
+            <img lazy-src="/img/undefine.png" class="js-avatar">
+            
+        </a>
+
+        <hgroup>
+          <h1 class="header-author"><a href="/">cilab-undefine</a></h1>
+        </hgroup>
+
+        
+        
+        <form><input type="text" class="search" placeholder=" Search..."></form>
+                
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/tags/">分类与标签</a></li>
+                        
+                            <li><a href="/archives/">归档</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <li id="新浪微博"><a class="新浪微博" target="_blank" href="http://weibo.com/5822115802/profile?topnav=1&wvr=6&is_all=1" title="新浪微博"></a></li>
+                            
+                                <li id="GitHub"><a class="GitHub" target="_blank" href="https://github.com/cilab-undefine" title="GitHub"></a></li>
+                            
+                                <li id="RSS"><a class="RSS" target="_blank" href="/atom.xml" title="RSS"></a></li>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <a href="/tags/EivenWa/" style="font-size: 10px;">EivenWa</a> <a href="/tags/Shaaron/" style="font-size: 20px;">Shaaron</a> <a href="/tags/blog/" style="font-size: 20px;">blog</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/github/" style="font-size: 10px;">github</a> <a href="/tags/hexo/" style="font-size: 20px;">hexo</a> <a href="/tags/joe/" style="font-size: 20px;">joe</a> <a href="/tags/scrapy/" style="font-size: 20px;">scrapy</a> <a href="/tags/windows/" style="font-size: 10px;">windows</a> <a href="/tags/心路历程/" style="font-size: 10px;">心路历程</a> <a href="/tags/模拟登陆/" style="font-size: 10px;">模拟登陆</a>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="https://github.com/cilab-undefine">GitHub</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">UESTC CILAB UNDEFINE</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">cilab-undefine</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img lazy-src="/img/undefine.png" class="js-avatar">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">cilab-undefine</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/tags/">分类与标签</a></li>
+                
+                    <li><a href="/archives/">归档</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <li id="新浪微博"><a class="新浪微博" target="_blank" href="http://weibo.com/5822115802/profile?topnav=1&wvr=6&is_all=1" title="新浪微博"></a></li>
+                            
+                                <li id="GitHub"><a class="GitHub" target="_blank" href="https://github.com/cilab-undefine" title="GitHub"></a></li>
+                            
+                                <li id="RSS"><a class="RSS" target="_blank" href="/atom.xml" title="RSS"></a></li>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+</nav>
+      <div class="body-wrap"><article id="post-scrapy伪装浏览器及模拟登陆" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/01/26/scrapy伪装浏览器及模拟登陆/" class="article-date">
+      <time datetime="2016-01-26T02:50:10.000Z" itemprop="datePublished">2016-01-26</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      scrapy伪装浏览器及模拟登陆
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/scrapy爬虫/">scrapy爬虫</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/EivenWa/">EivenWa</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Shaaron/">Shaaron</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scrapy/">scrapy</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/模拟登陆/">模拟登陆</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>本文主要讲使用scrapy框架模拟登陆。<br><a id="more"></a></p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><blockquote>
+<p>HTTP协议定义了在浏览器和Web服务器之间传输的报文格式。Web页面是由对象（HTML文件，JPEG图片）组成。用户在输入页面信息（如用户名、密码）时，浏览器向服务器发出对该页面所包含对象的HTTP请求报文，服务器认证用户信息后用相应的HTTP响应报文进行响应。因此在模拟登陆的过程中关键的两步是：   </p>
+</blockquote>
+<ul>
+<li>伪装浏览器</li>
+<li>实现身份认证</li>
+</ul>
+<h3 id="伪装浏览器"><a href="#伪装浏览器" class="headerlink" title="伪装浏览器"></a>伪装浏览器</h3><blockquote>
+<p>伪装浏览器需要在scrapy请求中添加一个登陆的头部消息headers即可以让服务器认为这边请求的是一个浏览器发出的。</p>
+<p>登陆的头部消息可以通过谷歌浏览器自带的开发者工具中network获取，具体过程见实践部分。</p>
+</blockquote>
+<h3 id="模拟登陆"><a href="#模拟登陆" class="headerlink" title="模拟登陆"></a>模拟登陆</h3><p>模拟登陆的实现由两种方法：</p>
+<p>1、使用表单进行身份识别</p>
+<blockquote>
+<p>在http请求报文中，若方法字段为POST，报文主体中包含的就是用户在表单字段中输入的值。同样可以通过network工具获得表单的格式。其中就包含用户名和密码。</p>
+<p><img src="http://i.imgur.com/ArskX3S.png" alt=""></p>
+<p>我们猜测：若能将完整的表单放在给服务器的请求中可以通过认证。但在实际中由于各网站实行的安全机制（如验证码、流水号），导致获取完整的表单较困难。   </p>
+<p>我们尝试用该办法登录知乎，csdn均失败。前者是由于表单信息中包含验证码，后者是由于表单信息中的流水号值无法提取。</p>
+</blockquote>
+<p>2、使用cookie</p>
+<blockquote>
+<p>cookie是在客户端记录用户身份的一段文本信息。客户端请求服务器，如果服务器需要记录用户状态，就向浏览器颁发一个cookie,浏览器就把cookie保存起来。当浏览器再次请求该网站时，浏览器就把请求的网址和cookie一同提交给服务器。服务器根据cookie来判断用户身份。   </p>
+<p>相应的，session是在服务器端记录用户身份。当客户端浏览服务器的时候，服务器就把客户信息记录在服务器。当客户端再次访问服务器时只需要从该session中查找该客户的状态就可以了。</p>
+<p>我们只要成功登录一次将该cookie记录下来，之后该cookie放在请求中即可登录成功。</p>
+</blockquote>
+<h2 id="模拟登陆实践（以爬知乎为例）"><a href="#模拟登陆实践（以爬知乎为例）" class="headerlink" title="模拟登陆实践（以爬知乎为例）"></a>模拟登陆实践（以爬知乎为例）</h2><h3 id="伪装浏览器-1"><a href="#伪装浏览器-1" class="headerlink" title="伪装浏览器"></a>伪装浏览器</h3><blockquote>
+<p>先查看浏览器请求的headers，一般浏览器都可以通过F12键查看网页源码，随便填写点击登录：根据下图中所示，可查看Request Headers，选择一些重要的选项一般如代码中所示(若不成功可添加选项host等，若是别的网页，可以改变相应Referer值):</p>
+<p><img src="http://i.imgur.com/6DpBYiB.png" alt=""></p>
+<p>知乎的登陆界面需要伪装浏览器才会得到服务器的response，使用scrapy请求知乎登录界面代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy.selector <span class="keyword">import</span> Selector</span><br><span class="line"><span class="keyword">from</span> scrapy.http <span class="keyword">import</span> Request</span><br><span class="line"><span class="keyword">import</span> scrapy</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoginzhihuSpider</span><span class="params">(scrapy.Spider)</span>:</span></span><br><span class="line">   	name = <span class="string">"weizhuang"</span></span><br><span class="line">   	allowed_domains = [<span class="string">"www.zhihu.com"</span>]</span><br><span class="line"></span><br><span class="line">    headers = &#123;</span><br><span class="line">        <span class="string">"Accept"</span>: <span class="string">"*/*"</span>,</span><br><span class="line">        <span class="string">"Accept-Encoding"</span>: <span class="string">"gzip,deflate"</span>,</span><br><span class="line">        <span class="string">"Accept-Language"</span>: <span class="string">"en-US,en;q=0.8,zh-TW;q=0.6,zh;q=0.4"</span>,</span><br><span class="line">        <span class="string">"Connection"</span>: <span class="string">"keep-alive"</span>,</span><br><span class="line">        <span class="string">"Content-Type"</span>:<span class="string">" application/x-www-form-urlencoded; charset=UTF-8"</span>,</span><br><span class="line">        <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36"</span>,</span><br><span class="line">        <span class="string">"Referer"</span>: <span class="string">"http://www.zhihu.com/"</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start_requests</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> [Request(<span class="string">"https://www.zhihu.com/#signin"</span>,headers=self.headers)]</span><br><span class="line">		    </span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">parse</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        item = Selector(response)</span><br><span class="line">        <span class="keyword">with</span> open(<span class="string">"weizhuang.html"</span>,<span class="string">'w'</span>) <span class="keyword">as</span> pf:</span><br><span class="line">            pf.write(item.extract().encode(<span class="string">'utf-8'</span>))</span><br></pre></td></tr></table></figure></p>
+<p>将返回的response写入weizhuang.html文件中，使结果更清晰。</p>
+<h3 id="使用cookie登陆"><a href="#使用cookie登陆" class="headerlink" title="使用cookie登陆"></a>使用cookie登陆</h3><p>使用cookie登录需要先登录成功，并获取登录成功后的cookie，方法与上查看headers同，只需要在上的基础上添加一个cookie，然后在Request中添加cookie参数即可：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scrapy.selector <span class="keyword">import</span> Selector</span><br><span class="line"><span class="keyword">from</span> scrapy.http <span class="keyword">import</span> Request</span><br><span class="line"><span class="keyword">import</span> scrapy</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoginzhihuSpider</span><span class="params">(scrapy.Spider)</span>:</span></span><br><span class="line">    name = <span class="string">"loginzhihu"</span></span><br><span class="line">    allowed_domains = [<span class="string">"www.zhihu.com"</span>]</span><br><span class="line">	</span><br><span class="line">    headers = &#123;</span><br><span class="line">        <span class="string">"Accept"</span>: <span class="string">"*/*"</span>,</span><br><span class="line">        <span class="string">"Accept-Encoding"</span>: <span class="string">"gzip,deflate"</span>,</span><br><span class="line">        <span class="string">"Accept-Language"</span>: <span class="string">"en-US,en;q=0.8,zh-TW;q=0.6,zh;q=0.4"</span>,</span><br><span class="line">        <span class="string">"Connection"</span>: <span class="string">"keep-alive"</span>,</span><br><span class="line">        <span class="string">"Content-Type"</span>:<span class="string">" application/x-www-form-urlencoded; charset=UTF-8"</span>,</span><br><span class="line">        <span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36"</span>,</span><br><span class="line">        <span class="string">"Referer"</span>: <span class="string">"http://www.zhihu.com/"</span></span><br><span class="line">    &#125;</span><br><span class="line">    cookies = &#123;</span><br><span class="line">        <span class="string">'q_c1'</span>:<span class="string">'40e5a2577ea24044bab40cfd89928dda|1451907080000|1451907080000'</span>,</span><br><span class="line">		<span class="string">'_za'</span>:<span class="string">'9cc46cae-feaf-4d40-9e4c-00c635d5e971'</span>,</span><br><span class="line">		<span class="string">'_xsrf'</span>:<span class="string">'b291e7ad2cfebd33418165bb1c5eaf39'</span>,</span><br><span class="line">		<span class="string">'aliyungf_tc'</span>:<span class="string">'AQAAALW8hRQiYgAAGOVHfaTZE0xft2gk'</span>,</span><br><span class="line">		<span class="string">'__utma'</span>:<span class="string">'51854390.1486541705.1453623747.1453777616.1453789370.3'</span>,</span><br><span class="line">		<span class="string">'__utmb'</span>:<span class="string">'51854390.8.10.1453789370'</span>,</span><br><span class="line">		<span class="string">'__utmc'</span>:<span class="string">'51854390'</span>,</span><br><span class="line">		<span class="string">'__utmz'</span>:<span class="string">'51854390.1453623747.1.1.utmcsr=zhihu.com|utmccn=(referral)|utmcmd=referral|utmcct=/'</span>,</span><br><span class="line">		<span class="string">'__utmv'</span>:<span class="string">'51854390.000--|2=registration_date=20160121=1^3=entry_date=20160104=1'</span>,</span><br><span class="line">		<span class="string">'cap_id'</span>:<span class="string">'"MDI4ZDcwMzcxNTRlNDg2OGFiNWRmZTc3MGFiNmNjMjU=|1453790724|2d5c9cbb1c75291f3c654ef5501aadab83dc6a03"'</span>,</span><br><span class="line">		<span class="string">'z_c0'</span>:<span class="string">'"QUJBSzR0TVlXUWtYQUFBQVlRSlZUUjJqemxhVU53R0lsU0N2bDV3ZDZQWkNqYzMzWjlveXZnPT0=|1453790749|d8e7e5ecb5e4a45646e87be9a3e480ded9f41026"'</span>,</span><br><span class="line">		<span class="string">'unlock_ticket'</span>:<span class="string">'"QUJBSzR0TVlXUWtYQUFBQVlRSlZUU1VkcDFhU0dHdFJLYldvUnl5Z1g1aWI0QnhpNmVtM3ZnPT0=|1453790749|c3fd50b2136a13940934e9f0b94a030f270dfe64'</span></span><br><span class="line">		&#125;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start_requests</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> [Request(<span class="string">"https://www.zhihu.com/#signin"</span>,cookies = self.cookies,headers=self.headers)]</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parse</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        item = Selector(response)</span><br><span class="line">        <span class="keyword">with</span> open(<span class="string">"login.html"</span>,<span class="string">'w'</span>) <span class="keyword">as</span> pf:</span><br><span class="line">            pf.write(item.extract().encode(<span class="string">'utf-8'</span>))</span><br></pre></td></tr></table></figure></p>
+<p>本例中，cookie中只要包含有z_c0这项即可达到预期效果。  </p>
+</blockquote>
+<ul>
+<li>注意事项：<blockquote>
+<p>在使用cookie模拟登陆时，必须获取登录成功的cookie，登陆成功的账号不能退出（登陆时勾上记住我可以关闭网页），每次退出都需要重新修改cookie。</p>
+</blockquote>
+</li>
+</ul>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2016/01/26/scrapy伪装浏览器及模拟登陆/">scrapy伪装浏览器及模拟登陆</a></p>
+        <p><span>文章作者:</span><a href="/" title="访问 cilab-undefine 的个人博客">cilab-undefine</a></p>
+        <p><span>发布时间:</span>2016年01月26日 - 10时50分</p>
+        <p><span>最后更新:</span>2016年02月28日 - 18时54分</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2016/01/26/scrapy伪装浏览器及模拟登陆/" title="scrapy伪装浏览器及模拟登陆">http://cilab-undefine.github.io/2016/01/26/scrapy伪装浏览器及模拟登陆/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://cilab-undefine.github.io/2016/01/26/scrapy伪装浏览器及模拟登陆/　　作者: cilab-undefine" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script src="/js/clipboard.min.js"></script>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" title="中国大陆 (CC BY-NC-SA 3.0 CN)">"署名-非商用-相同方式共享 3.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2016/01/16/2016-01-16-scrapy写第一个爬虫/">
+                    scrapy写第一个爬虫
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#原理"><span class="toc-number">1.</span> <span class="toc-text">原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪装浏览器"><span class="toc-number">1.1.</span> <span class="toc-text">伪装浏览器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模拟登陆"><span class="toc-number">1.2.</span> <span class="toc-text">模拟登陆</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模拟登陆实践（以爬知乎为例）"><span class="toc-number">2.</span> <span class="toc-text">模拟登陆实践（以爬知乎为例）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#伪装浏览器-1"><span class="toc-number">2.1.</span> <span class="toc-text">伪装浏览器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用cookie登陆"><span class="toc-number">2.2.</span> <span class="toc-text">使用cookie登陆</span></a></li></ol></li></ol>
+</div>
+<style>
+    .left-col .switch-btn {
+        display: none;
+    }
+    .left-col .switch-area {
+        display: none;
+    }
+</style>
+
+<input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script>
+    var valueHide = "隐藏目录";
+    var valueShow = "显示目录";
+
+    if ($(".left-col").is(":hidden")) {
+        $("#tocButton").attr("value", valueShow);
+    }
+
+    $("#tocButton").click(function() {
+        if ($("#toc").is(":hidden")) {
+            $("#tocButton").attr("value", valueHide);
+            $("#toc").slideDown(320);
+            $(".switch-btn, .switch-area").fadeOut(300);
+        }
+        else {
+            $("#tocButton").attr("value", valueShow);
+            $("#toc").slideUp(350);
+            $(".switch-btn, .switch-area").fadeIn(500);
+        }
+    })
+
+    if ($(".toc").length < 1) {
+        $("#toc, #tocButton").hide();
+        $(".switch-btn, .switch-area").show();
+    }
+</script>
+
+
+
+
+<div class="share">
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more"></a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a href="#" class="bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+    <a href="#" class="bds_copy" data-cmd="copy" title="复制网址"></a>
+    <a href="#" class="bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+    <a href="#" class="bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+    </div>
+    <script>
+        window._bd_share_config={
+            "common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+    </script>
+</div>
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <!-- 多说评论框 start -->
+    <div class="ds-thread" data-thread-key="2016/01/26/scrapy伪装浏览器及模拟登陆/" data-title="scrapy伪装浏览器及模拟登陆" data-url="http://cilab-undefine.github.io/2016/01/26/scrapy伪装浏览器及模拟登陆/"></div>
+    <!-- 多说评论框 end -->
+    <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+    <script type="text/javascript">
+    var duoshuoQuery = {short_name:"cilab-undefine"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] 
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+    </script>
+    <!-- 多说公共JS代码 end -->
+</div>
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2016/01/16/2016-01-16-scrapy写第一个爬虫/" title="下一篇: scrapy写第一个爬虫">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/01/26/scrapy伪装浏览器及模拟登陆/">scrapy伪装浏览器及模拟登陆</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/16/2016-01-16-scrapy写第一个爬虫/">scrapy写第一个爬虫</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/08/2016-01-08-windows平台搭建hexo博客环境/">windows平台搭建hexo博客环境</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/07/2016-01-07-团队协作博客使用流程(ubuntu)/">团队协作博客使用流程(ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/06/common-hexo-commands/">undefine小组成立了！！！</a></li></ul>
+    <script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+    <script>
+        $(".post-list").addClass("toc-article");
+        $(".post-list-item a").attr("target","_blank");
+        $("#post-nav-button > a:nth-child(2)").click(function() {
+            $(".fa-bars, .fa-times").toggle();
+            $(".post-list").toggle(300);
+            if ($(".toc").length > 0) {
+                $("#toc, #tocButton").toggle(200, function() {
+                    if ($(".switch-area").is(":visible")) {
+                        $("#toc, .switch-btn, .switch-area").toggle();
+                        $("#tocButton").attr("value", valueHide);
+                        }
+                    })
+            }
+            else {
+                $(".switch-btn, .switch-area").fadeToggle(300);
+            }
+        })
+    </script>
+
+
+
+
+    
+        <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+        <script>
+            var yiliaConfig = {
+            fancybox: true,
+            mathjax: true,
+            animate: true,
+            isHome: false,
+            isPost: true,
+            isArchive: false,
+            isTag: false,
+            isCategory: false,
+            open_in_new: false
+            }
+        </script>
+        
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                &copy; 2016 cilab-undefine
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的静态博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减双栏 Hexo 博客主题">Yelee</a> by MOxFIVE
+            </div>
+        </div>
+        <div class="visit">
+            <span id="busuanzi_container_site_pv" style='display:none'>
+                <span id="site-visit" >本站到访数: 
+                    <span id="busuanzi_value_site_uv"></span>
+                </span>
+            </span>
+            <span id="busuanzi_container_page_pv" style='display:none'>
+                <span id="page-visit">, 本页阅读量: 
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+            </span>
+        </div>
+    </div>
+</footer>
+    </div>
+    
+
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+
+<script>
+    $(document).ready(function() {
+        if ($("#comments").length < 1) {
+            $("#scroll > a:nth-child(2)").hide();
+        };
+    })
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

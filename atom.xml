@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>cilab-undefine的小窝</title>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://cilab-undefine.github.io/"/>
+  <updated>2016-02-28T10:54:08.899Z</updated>
+  <id>http://cilab-undefine.github.io/</id>
+  
+  <author>
+    <name>cilab-undefine</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>scrapy伪装浏览器及模拟登陆</title>
+    <link href="http://cilab-undefine.github.io/2016/01/26/scrapy%E4%BC%AA%E8%A3%85%E6%B5%8F%E8%A7%88%E5%99%A8%E5%8F%8A%E6%A8%A1%E6%8B%9F%E7%99%BB%E9%99%86/"/>
+    <id>http://cilab-undefine.github.io/2016/01/26/scrapy伪装浏览器及模拟登陆/</id>
+    <published>2016-01-26T02:50:10.000Z</published>
+    <updated>2016-02-28T10:54:08.899Z</updated>
+    
+    <content type="html">&lt;p&gt;本文主要讲使用scrapy框架模拟登陆。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;原理&quot;&gt;&lt;a href=&quot;#原理&quot; class=&quot;headerlink&quot; title=&quot;原理&quot;&gt;&lt;/a&gt;原理&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;HTTP协议定义了在浏览器和Web服务器之间传输的报文格式。Web页面是由对象（HTML文件，JPEG图片）组成。用户在输入页面信息（如用户名、密码）时，浏览器向服务器发出对该页面所包含对象的HTTP请求报文，服务器认证用户信息后用相应的HTTP响应报文进行响应。因此在模拟登陆的过程中关键的两步是：   &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;伪装浏览器&lt;/li&gt;
+&lt;li&gt;实现身份认证&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;伪装浏览器&quot;&gt;&lt;a href=&quot;#伪装浏览器&quot; class=&quot;headerlink&quot; title=&quot;伪装浏览器&quot;&gt;&lt;/a&gt;伪装浏览器&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;伪装浏览器需要在scrapy请求中添加一个登陆的头部消息headers即可以让服务器认为这边请求的是一个浏览器发出的。&lt;/p&gt;
+&lt;p&gt;登陆的头部消息可以通过谷歌浏览器自带的开发者工具中network获取，具体过程见实践部分。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;模拟登陆&quot;&gt;&lt;a href=&quot;#模拟登陆&quot; class=&quot;headerlink&quot; title=&quot;模拟登陆&quot;&gt;&lt;/a&gt;模拟登陆&lt;/h3&gt;&lt;p&gt;模拟登陆的实现由两种方法：&lt;/p&gt;
+&lt;p&gt;1、使用表单进行身份识别&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;在http请求报文中，若方法字段为POST，报文主体中包含的就是用户在表单字段中输入的值。同样可以通过network工具获得表单的格式。其中就包含用户名和密码。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://i.imgur.com/ArskX3S.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;我们猜测：若能将完整的表单放在给服务器的请求中可以通过认证。但在实际中由于各网站实行的安全机制（如验证码、流水号），导致获取完整的表单较困难。   &lt;/p&gt;
+&lt;p&gt;我们尝试用该办法登录知乎，csdn均失败。前者是由于表单信息中包含验证码，后者是由于表单信息中的流水号值无法提取。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;2、使用cookie&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;cookie是在客户端记录用户身份的一段文本信息。客户端请求服务器，如果服务器需要记录用户状态，就向浏览器颁发一个cookie,浏览器就把cookie保存起来。当浏览器再次请求该网站时，浏览器就把请求的网址和cookie一同提交给服务器。服务器根据cookie来判断用户身份。   &lt;/p&gt;
+&lt;p&gt;相应的，session是在服务器端记录用户身份。当客户端浏览服务器的时候，服务器就把客户信息记录在服务器。当客户端再次访问服务器时只需要从该session中查找该客户的状态就可以了。&lt;/p&gt;
+&lt;p&gt;我们只要成功登录一次将该cookie记录下来，之后该cookie放在请求中即可登录成功。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;模拟登陆实践（以爬知乎为例）&quot;&gt;&lt;a href=&quot;#模拟登陆实践（以爬知乎为例）&quot; class=&quot;headerlink&quot; title=&quot;模拟登陆实践（以爬知乎为例）&quot;&gt;&lt;/a&gt;模拟登陆实践（以爬知乎为例）&lt;/h2&gt;&lt;h3 id=&quot;伪装浏览器-1&quot;&gt;&lt;a href=&quot;#伪装浏览器-1&quot; class=&quot;headerlink&quot; title=&quot;伪装浏览器&quot;&gt;&lt;/a&gt;伪装浏览器&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;先查看浏览器请求的headers，一般浏览器都可以通过F12键查看网页源码，随便填写点击登录：根据下图中所示，可查看Request Headers，选择一些重要的选项一般如代码中所示(若不成功可添加选项host等，若是别的网页，可以改变相应Referer值):&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://i.imgur.com/6DpBYiB.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;知乎的登陆界面需要伪装浏览器才会得到服务器的response，使用scrapy请求知乎登录界面代码：&lt;br&gt;&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; scrapy.selector &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Selector&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; scrapy.http &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Request&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; scrapy&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;LoginzhihuSpider&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(scrapy.Spider)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   	name = &lt;span class=&quot;string&quot;&gt;&quot;weizhuang&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   	allowed_domains = [&lt;span class=&quot;string&quot;&gt;&quot;www.zhihu.com&quot;&lt;/span&gt;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    headers = &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Accept&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;*/*&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Accept-Encoding&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;gzip,deflate&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Accept-Language&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;en-US,en;q=0.8,zh-TW;q=0.6,zh;q=0.4&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Connection&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;keep-alive&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Content-Type&quot;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&quot; application/x-www-form-urlencoded; charset=UTF-8&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;User-Agent&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Referer&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;http://www.zhihu.com/&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;start_requests&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; [Request(&lt;span class=&quot;string&quot;&gt;&quot;https://www.zhihu.com/#signin&quot;&lt;/span&gt;,headers=self.headers)]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		    &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self, response)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        item = Selector(response)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;with&lt;/span&gt; open(&lt;span class=&quot;string&quot;&gt;&quot;weizhuang.html&quot;&lt;/span&gt;,&lt;span class=&quot;string&quot;&gt;&#39;w&#39;&lt;/span&gt;) &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; pf:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            pf.write(item.extract().encode(&lt;span class=&quot;string&quot;&gt;&#39;utf-8&#39;&lt;/span&gt;))&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;将返回的response写入weizhuang.html文件中，使结果更清晰。&lt;/p&gt;
+&lt;h3 id=&quot;使用cookie登陆&quot;&gt;&lt;a href=&quot;#使用cookie登陆&quot; class=&quot;headerlink&quot; title=&quot;使用cookie登陆&quot;&gt;&lt;/a&gt;使用cookie登陆&lt;/h3&gt;&lt;p&gt;使用cookie登录需要先登录成功，并获取登录成功后的cookie，方法与上查看headers同，只需要在上的基础上添加一个cookie，然后在Request中添加cookie参数即可：&lt;br&gt;&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;27&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;28&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;29&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;30&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;31&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;32&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;33&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;34&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;35&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;36&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; scrapy.selector &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Selector&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; scrapy.http &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; Request&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; scrapy&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;LoginzhihuSpider&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(scrapy.Spider)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    name = &lt;span class=&quot;string&quot;&gt;&quot;loginzhihu&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    allowed_domains = [&lt;span class=&quot;string&quot;&gt;&quot;www.zhihu.com&quot;&lt;/span&gt;]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    headers = &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Accept&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;*/*&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Accept-Encoding&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;gzip,deflate&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Accept-Language&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;en-US,en;q=0.8,zh-TW;q=0.6,zh;q=0.4&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Connection&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;keep-alive&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Content-Type&quot;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&quot; application/x-www-form-urlencoded; charset=UTF-8&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;User-Agent&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36&quot;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&quot;Referer&quot;&lt;/span&gt;: &lt;span class=&quot;string&quot;&gt;&quot;http://www.zhihu.com/&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    cookies = &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;string&quot;&gt;&#39;q_c1&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;40e5a2577ea24044bab40cfd89928dda|1451907080000|1451907080000&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;_za&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;9cc46cae-feaf-4d40-9e4c-00c635d5e971&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;_xsrf&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;b291e7ad2cfebd33418165bb1c5eaf39&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;aliyungf_tc&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;AQAAALW8hRQiYgAAGOVHfaTZE0xft2gk&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;__utma&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;51854390.1486541705.1453623747.1453777616.1453789370.3&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;__utmb&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;51854390.8.10.1453789370&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;__utmc&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;51854390&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;__utmz&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;51854390.1453623747.1.1.utmcsr=zhihu.com|utmccn=(referral)|utmcmd=referral|utmcct=/&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;__utmv&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;51854390.000--|2=registration_date=20160121=1^3=entry_date=20160104=1&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;cap_id&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;&quot;MDI4ZDcwMzcxNTRlNDg2OGFiNWRmZTc3MGFiNmNjMjU=|1453790724|2d5c9cbb1c75291f3c654ef5501aadab83dc6a03&quot;&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;z_c0&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;&quot;QUJBSzR0TVlXUWtYQUFBQVlRSlZUUjJqemxhVU53R0lsU0N2bDV3ZDZQWkNqYzMzWjlveXZnPT0=|1453790749|d8e7e5ecb5e4a45646e87be9a3e480ded9f41026&quot;&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;string&quot;&gt;&#39;unlock_ticket&#39;&lt;/span&gt;:&lt;span class=&quot;string&quot;&gt;&#39;&quot;QUJBSzR0TVlXUWtYQUFBQVlRSlZUU1VkcDFhU0dHdFJLYldvUnl5Z1g1aWI0QnhpNmVtM3ZnPT0=|1453790749|c3fd50b2136a13940934e9f0b94a030f270dfe64&#39;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;start_requests&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; [Request(&lt;span class=&quot;string&quot;&gt;&quot;https://www.zhihu.com/#signin&quot;&lt;/span&gt;,cookies = self.cookies,headers=self.headers)]&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(self, response)&lt;/span&gt;:&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        item = Selector(response)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;with&lt;/span&gt; open(&lt;span class=&quot;string&quot;&gt;&quot;login.html&quot;&lt;/span&gt;,&lt;span class=&quot;string&quot;&gt;&#39;w&#39;&lt;/span&gt;) &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; pf:&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;            pf.write(item.extract().encode(&lt;span class=&quot;string&quot;&gt;&#39;utf-8&#39;&lt;/span&gt;))&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;本例中，cookie中只要包含有z_c0这项即可达到预期效果。  &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;注意事项：&lt;blockquote&gt;
+&lt;p&gt;在使用cookie模拟登陆时，必须获取登录成功的cookie，登陆成功的账号不能退出（登陆时勾上记住我可以关闭网页），每次退出都需要重新修改cookie。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文主要讲使用scrapy框架模拟登陆。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="scrapy爬虫" scheme="http://cilab-undefine.github.io/categories/scrapy%E7%88%AC%E8%99%AB/"/>
+    
+    
+      <category term="scrapy" scheme="http://cilab-undefine.github.io/tags/scrapy/"/>
+    
+      <category term="Shaaron" scheme="http://cilab-undefine.github.io/tags/Shaaron/"/>
+    
+      <category term="EivenWa" scheme="http://cilab-undefine.github.io/tags/EivenWa/"/>
+    
+      <category term="模拟登陆" scheme="http://cilab-undefine.github.io/tags/%E6%A8%A1%E6%8B%9F%E7%99%BB%E9%99%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>scrapy写第一个爬虫</title>
+    <link href="http://cilab-undefine.github.io/2016/01/16/2016-01-16-scrapy%E5%86%99%E7%AC%AC%E4%B8%80%E4%B8%AA%E7%88%AC%E8%99%AB/"/>
+    <id>http://cilab-undefine.github.io/2016/01/16/2016-01-16-scrapy写第一个爬虫/</id>
+    <published>2016-01-16T04:56:34.000Z</published>
+    <updated>2016-02-28T11:16:36.695Z</updated>
+    
+    <content type="html">&lt;p&gt;本节示例以爬取西刺免费代理网站为例（ &lt;a href=&quot;http://www.xicidaili.com&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.xicidaili.com&lt;/a&gt; ），说明用scrapy框架写一个爬虫的基本流程。其中已实现数据库存储。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h3 id=&quot;简易爬虫编写&quot;&gt;&lt;a href=&quot;#简易爬虫编写&quot; class=&quot;headerlink&quot; title=&quot;简易爬虫编写&quot;&gt;&lt;/a&gt;简易爬虫编写&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;新建一个工程&lt;/p&gt;
+&lt;p&gt; &lt;code&gt;scrapy startproject xici&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt; 生成如下目录：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;xici
+    scrapy.cfg  
+    xici
+        __init__.py  
+        items.py  
+        pipelines.py  
+        settings.py  
+        spiders
+            __init__.py
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;进入&lt;code&gt;xici&lt;/code&gt;项目目录，使用命令生成一个spider&lt;/p&gt;
+&lt;p&gt; &lt;code&gt;scrapy genspider xiciSpider xicidaili.com&lt;/code&gt; //生成一个爬取域名xicidaili.com，名字为xiciSpider的spider&lt;/p&gt;
+&lt;p&gt; 目录结构如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;xici
+    scrapy.cfg  
+    xici
+        __init__.py  
+        items.py  
+        pipelines.py  
+        settings.py  
+        spiders
+            __init__.py
+             xiciSpider.py    //新增文件
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;在items.py中XiciItem类中加入以下信息&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;class XiciItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()    
+    ip = scrapy.Field() 
+    port = scrapy.Field()
+    location = scrapy.Field()
+    anonymous = scrapy.Field()
+    pro_type = scrapy.Field()#是HHTP链接还是HTTPS链接
+    verify_time = scrapy.Field()  
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;在xiciSpider.py中新增以下内容&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# -*- coding: utf-8 -*-        
+import scrapy                  
+from scrapy.selector import Selector 
+from xici.items import XiciItem
+
+class XicispiderSpider(scrapy.Spider):
+    name = &amp;quot;xiciSpider&amp;quot;
+    allowed_domains = [&amp;quot;xicidaili.com&amp;quot;]
+    start_urls = (             
+            &amp;apos;http://www.xicidaili.com/nn/&amp;apos;, 
+            &amp;apos;http://www.xicidaili.com/nt/&amp;apos;  
+    )
+
+    def parse(self, response):
+        sel=Selector(response)
+        items = []
+        flag = 0; 
+        trs = sel.xpath(&amp;apos;//*[@id=&amp;quot;ip_list&amp;quot;]/tr&amp;apos;)
+        for i in range(1,len(trs)):     
+            item = XiciItem()
+            tr = trs[i]
+            item[&amp;apos;ip&amp;apos;] = tr.xpath(&amp;quot;td[3]/text()&amp;quot;).extract()
+            item[&amp;apos;port&amp;apos;] = tr.xpath(&amp;quot;td[4]/text()&amp;quot;).extract()
+            item[&amp;apos;location&amp;apos;] = tr.xpath(&amp;quot;td[5]/a/text()&amp;quot;).extract() and \
+                    tr.xpath(&amp;quot;td[5]/a/text()&amp;quot;).extract() or tr.xpath(&amp;quot;td[5]/text()&amp;quot;).extract() #不同页面获取location的xpath不同
+            item[&amp;apos;anonymous&amp;apos;] = tr.xpath(&amp;quot;td[6]/text()&amp;quot;).extract()
+            item[&amp;apos;pro_type&amp;apos;] = tr.xpath(&amp;quot;td[7]/text()&amp;quot;).extract()
+            item[&amp;apos;verify_time&amp;apos;] = tr.xpath(&amp;quot;td[10]/text()&amp;quot;).extract()
+            items.append(item)
+        return items
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code&gt;- `name`: Spider的标识。它必须是唯一的, 那就是说,你不能在不同的Spiders中设置相同的名字。
+- `start_urls`：Spider将会去爬这些URLs的列表。所以刚开始的下载页面将要包含在这些列表中。其他子URL将会从这些起始URL中继承性生成。
+- `parse()`:每一个URL爬取完成默认调用的处理函数, 这个方法负责解析response数据和提出抓取的数据(作为抓取的items)。
+&lt;/code&gt;&lt;/pre&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;运行命令进行爬取&lt;/p&gt;
+&lt;p&gt; &lt;code&gt;scrapy crawl xiciSpider //运行爬虫&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt; &lt;code&gt;scrapy crawl xiciSpider -o ips.json //将提取的结果以json格式（自动转换）存储到ips.json文件中&lt;/code&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;scrapy 内置支持如下格式： ‘xml’, ‘jl’, ‘json’, ‘jsonlines’, ‘csv’, ‘pickle’, ‘marshal’&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;将爬取的内容存储到数据库&quot;&gt;&lt;a href=&quot;#将爬取的内容存储到数据库&quot; class=&quot;headerlink&quot; title=&quot;将爬取的内容存储到数据库&quot;&gt;&lt;/a&gt;将爬取的内容存储到数据库&lt;/h3&gt;&lt;p&gt;本示例以mysql为例&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;在pipeline.py中加入数据库存储的相关代码&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# -*- coding: utf-8 -*-
+
+# Define your item pipelines here
+#
+# Don&amp;apos;t forget to add your pipeline to the ITEM_PIPELINES setting
+# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+
+from scrapy import log
+from twisted.enterprise import adbapi
+from scrapy.http import Request
+import json
+import codecs
+import MySQLdb
+import MySQLdb.cursors
+
+class XiciPipeline(object):
+    def process_item(self, item, spider):
+        return item
+
+class MySQLStoreIPPipeline(object):
+    def __init__(self):
+        self.dbpool = adbapi.ConnectionPool(&amp;apos;MySQLdb&amp;apos;,
+        host = &amp;apos;127.0.0.1&amp;apos;, #settings[&amp;apos;MYSQL_HOST&amp;apos;],
+        port = 3306,
+        db = &amp;apos;agent_ip&amp;apos;, #settings[&amp;apos;MYSQL_DBNAME&amp;apos;],
+        user = &amp;apos;root&amp;apos;,#settings[&amp;apos;MYSQL_USER&amp;apos;],
+        passwd = &amp;apos;root&amp;apos;,#settings[&amp;apos;MYSQL_PASSWD&amp;apos;], 
+        cursorclass = MySQLdb.cursors.DictCursor,
+        charset = &amp;apos;utf8&amp;apos;,
+        use_unicode = True
+    )
+
+    def process_item(self, item, spider):
+        query = self.dbpool.runInteraction(self._conditional_insert, item,spider)
+        query.addErrback(self.handle_error)
+        return item
+
+    def _conditional_insert(self,tx,item,spider):
+        tx.execute(&amp;quot;select * from ips where ip= %s&amp;quot;,(item[&amp;apos;ip&amp;apos;][0],))
+        result=tx.fetchone()
+        log.msg(result)
+        if result:
+            log.msg(&amp;quot;Item already stored in db:%s&amp;quot; % item,level=log.DEBUG)
+        else: 
+            tx.execute(&amp;quot;insert into ips (ip,port,location,anonymous,pro_type,verify_time) values (%s,%s,%s,%s,%s,%s)&amp;quot;,\
+                    (item[&amp;apos;ip&amp;apos;][0],item[&amp;apos;port&amp;apos;][0],item[&amp;apos;location&amp;apos;][0],item[&amp;apos;anonymous&amp;apos;][0],item[&amp;apos;pro_type&amp;apos;][0],item[&amp;apos;verify_time&amp;apos;][0]))
+            log.msg(&amp;quot;Item stored in db: %s&amp;quot; % item, level=log.DEBUG)
+
+        def handle_error(self, e):
+            log.err(e)
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code&gt;&amp;gt; 以上代码中定义了类MySQLStoreIPPipeline,调用该pipeline时会自动调用其`process_item`方法
+
+&amp;gt; 每个item pipeline组件都需要调用`process_item`方法，这个方法必须返回一个 Item (或任何继承类)对象， 或是抛出 DropItem 异常，被丢弃的item将不会被之后的pipeline组件所处理。
+&lt;/code&gt;&lt;/pre&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;在settings.py中加入如下配置&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ITEM_PIPELINES = {
+    &amp;apos;xici.pipelines.MySQLStoreIPPipeline&amp;apos;:300
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;blockquote&gt;
+&lt;p&gt;以上配置是显示声明调用MySQLStoreIPPipeline，如果不加入该项配置，即使在pipeline.py中定义了该类，spider也不会调用&lt;/p&gt;
+&lt;p&gt;类后面的整型值，确定了其运行的顺序，item按数字从低到高的顺序，通过pipeline，通常将这些数字定义在0-1000范围内&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本节示例以爬取西刺免费代理网站为例（ &lt;a href=&quot;http://www.xicidaili.com&quot;&gt;http://www.xicidaili.com&lt;/a&gt; ），说明用scrapy框架写一个爬虫的基本流程。其中已实现数据库存储。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="使用说明" scheme="http://cilab-undefine.github.io/categories/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/"/>
+    
+    
+      <category term="joe" scheme="http://cilab-undefine.github.io/tags/joe/"/>
+    
+      <category term="scrapy" scheme="http://cilab-undefine.github.io/tags/scrapy/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>windows平台搭建hexo博客环境</title>
+    <link href="http://cilab-undefine.github.io/2016/01/08/2016-01-08-windows%E5%B9%B3%E5%8F%B0%E6%90%AD%E5%BB%BAhexo%E5%8D%9A%E5%AE%A2%E7%8E%AF%E5%A2%83/"/>
+    <id>http://cilab-undefine.github.io/2016/01/08/2016-01-08-windows平台搭建hexo博客环境/</id>
+    <published>2016-01-08T04:56:34.000Z</published>
+    <updated>2016-02-28T10:54:08.897Z</updated>
+    
+    <content type="html">&lt;p&gt;本文记录初次使用博客环境搭建过程。平台：windows!&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h3 id=&quot;版本问题&quot;&gt;&lt;a href=&quot;#版本问题&quot; class=&quot;headerlink&quot; title=&quot;版本问题&quot;&gt;&lt;/a&gt;版本问题&lt;/h3&gt;&lt;p&gt;  git 2.0+&lt;br&gt;  hexo 3.0+&lt;/p&gt;
+&lt;h3 id=&quot;安装Git&quot;&gt;&lt;a href=&quot;#安装Git&quot; class=&quot;headerlink&quot; title=&quot;安装Git&quot;&gt;&lt;/a&gt;安装Git&lt;/h3&gt;&lt;p&gt;  下载安装。（略）&lt;/p&gt;
+&lt;h3 id=&quot;安装Node-js&quot;&gt;&lt;a href=&quot;#安装Node-js&quot; class=&quot;headerlink&quot; title=&quot;安装Node.js&quot;&gt;&lt;/a&gt;安装Node.js&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;Windows下安装Node.js比较简单，直接下载安装，next-&amp;gt;next-&amp;gt;…finish即可，安装完成后环境变量 已经自行配好。&lt;br&gt;下载地址：&lt;a href=&quot;http://nodejs.cn&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://nodejs.cn&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;检查是否安装成功。可使用命令：node -v，查看版本号。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;安装npm&quot;&gt;&lt;a href=&quot;#安装npm&quot; class=&quot;headerlink&quot; title=&quot;安装npm&quot;&gt;&lt;/a&gt;安装npm&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;最新版本的Node.js已经集成了npm。&lt;/li&gt;
+&lt;li&gt;检查是否安装成功。可使用命令：npm -v,查看版本号。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;安装hexo&quot;&gt;&lt;a href=&quot;#安装hexo&quot; class=&quot;headerlink&quot; title=&quot;安装hexo&quot;&gt;&lt;/a&gt;安装hexo&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;在git bush中执行命令：npm install -g hexo&lt;/li&gt;
+&lt;li&gt;安装过程可能会出现问题，需要修改npm安装源，参考  &lt;a href=&quot;http://www.cnblogs.com/trying/p/4064518.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/trying/p/4064518.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;开始使用hexo（测试）&quot;&gt;&lt;a href=&quot;#开始使用hexo（测试）&quot; class=&quot;headerlink&quot; title=&quot;开始使用hexo（测试）&quot;&gt;&lt;/a&gt;开始使用hexo（测试）&lt;/h3&gt;&lt;p&gt;  在你指定的某一文件夹下右键git bush,依次执行如下命令： &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;hexo init   &lt;/li&gt;
+&lt;li&gt;npm install  &lt;/li&gt;
+&lt;li&gt;hexo g&lt;/li&gt;
+&lt;li&gt;hexo s&lt;blockquote&gt;
+&lt;p&gt;成功如下图所示，生成本地博客:&lt;a href=&quot;http://localhost:4000&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://localhost:4000&lt;/a&gt; &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://i.imgur.com/nQWxwPu.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;生成第一篇博客&quot;&gt;&lt;a href=&quot;#生成第一篇博客&quot; class=&quot;headerlink&quot; title=&quot;生成第一篇博客&quot;&gt;&lt;/a&gt;生成第一篇博客&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;设置SSH keys 详见 : &lt;a href=&quot;http://jingyan.baidu.com/article/d8072ac47aca0fec95cefd2d.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://jingyan.baidu.com/article/d8072ac47aca0fec95cefd2d.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;将SSH keys添加进github账户中（注意权限为读和写）&lt;/li&gt;
+&lt;li&gt;将coding上的代码clone到本地&lt;/li&gt;
+&lt;li&gt;加载node_modules，使用命令：npm install &lt;/li&gt;
+&lt;li&gt;在/source/_posts文件夹中新建博客。（编辑博客本人使用软件markdownPad）&lt;/li&gt;
+&lt;li&gt;编译博客使用命令：hexo g&lt;/li&gt;
+&lt;li&gt;部署到github上使用命令：hexo d&lt;/li&gt;
+&lt;li&gt;注意推送到coding上！&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文记录初次使用博客环境搭建过程。平台：windows!&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="使用说明" scheme="http://cilab-undefine.github.io/categories/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/"/>
+    
+    
+      <category term="hexo" scheme="http://cilab-undefine.github.io/tags/hexo/"/>
+    
+      <category term="blog" scheme="http://cilab-undefine.github.io/tags/blog/"/>
+    
+      <category term="Shaaron" scheme="http://cilab-undefine.github.io/tags/Shaaron/"/>
+    
+      <category term="windows" scheme="http://cilab-undefine.github.io/tags/windows/"/>
+    
+      <category term="git" scheme="http://cilab-undefine.github.io/tags/git/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>团队协作博客使用流程(ubuntu)</title>
+    <link href="http://cilab-undefine.github.io/2016/01/07/2016-01-07-%E5%9B%A2%E9%98%9F%E5%8D%8F%E4%BD%9C%E5%8D%9A%E5%AE%A2%E4%BD%BF%E7%94%A8%E6%B5%81%E7%A8%8B(ubuntu)/"/>
+    <id>http://cilab-undefine.github.io/2016/01/07/2016-01-07-团队协作博客使用流程(ubuntu)/</id>
+    <published>2016-01-07T06:25:42.000Z</published>
+    <updated>2016-02-28T11:04:05.108Z</updated>
+    
+    <content type="html">&lt;p&gt;本文只是讲解如何使用博客进行记录我们学习的点滴,不会讲博客的搭建流程。用博文进行进行文章的记录，只是我们的一种学习方式，工具用着顺手方便即可，没有必要纠结博客的搭建过程，有兴趣可以自行研究，但请勿本末倒置。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;基本说明&quot;&gt;&lt;a href=&quot;#基本说明&quot; class=&quot;headerlink&quot; title=&quot;基本说明&quot;&gt;&lt;/a&gt;基本说明&lt;/h2&gt;&lt;h3 id=&quot;博客书写规范说明&quot;&gt;&lt;a href=&quot;#博客书写规范说明&quot; class=&quot;headerlink&quot; title=&quot;博客书写规范说明&quot;&gt;&lt;/a&gt;博客书写规范说明&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;每篇博客明明规则为:日期+文章标题名,例如”2015-01-07-团队协作博客使用流程(ubuntu)”&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;写完博客请先进行本地调试,本地调试完成后再进行部署&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;博客代码原稿请push到coding(提交之前请先pull)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;博客代码生成好的静态文件请部署到github&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;(规范正在整理中,将会在使用过程中不断完善……)&lt;/p&gt;
+&lt;h3 id=&quot;所需环境说明&quot;&gt;&lt;a href=&quot;#所需环境说明&quot; class=&quot;headerlink&quot; title=&quot;所需环境说明&quot;&gt;&lt;/a&gt;所需环境说明&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Git（自行安装）&lt;/li&gt;
+&lt;li&gt;node.js&lt;/li&gt;
+&lt;li&gt;github账户（见群共享）&lt;/li&gt;
+&lt;li&gt;hexo&lt;/li&gt;
+&lt;li&gt;coding账号&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;环境配置&quot;&gt;&lt;a href=&quot;#环境配置&quot; class=&quot;headerlink&quot; title=&quot;环境配置&quot;&gt;&lt;/a&gt;环境配置&lt;/h2&gt;&lt;h3 id=&quot;安装node-js&quot;&gt;&lt;a href=&quot;#安装node-js&quot; class=&quot;headerlink&quot; title=&quot;安装node.js&quot;&gt;&lt;/a&gt;安装node.js&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;下载安装包 &lt;code&gt;http://nodejs.org/dist/latest-v5.x/node-v5.3.0.tar.gz&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;解压到合适文件夹，例如 &lt;code&gt;/usr/local/&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;设置全局链接&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;figure class=&quot;highlight crmsh&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;sudo ln -s /usr/local/&lt;span class=&quot;keyword&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;title&quot;&gt;-v5&lt;/span&gt;.&lt;span class=&quot;number&quot;&gt;3.0&lt;/span&gt;/bin/&lt;span class=&quot;keyword&quot;&gt;node&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;/usr&lt;/span&gt;/local/bin/&lt;span class=&quot;keyword&quot;&gt;node&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;title&quot;&gt;sudo&lt;/span&gt; ln -s /usr/local/&lt;span class=&quot;keyword&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;title&quot;&gt;-v5&lt;/span&gt;.&lt;span class=&quot;number&quot;&gt;3.0&lt;/span&gt;/bin/npm /usr/local/bin/npm&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;blockquote&gt;
+&lt;p&gt;源码安装和apt-get安装方式详见&lt;a href=&quot;http://my.oschina.net/blogshi/blog/260953&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://my.oschina.net/blogshi/blog/260953&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;安装hexo&quot;&gt;&lt;a href=&quot;#安装hexo&quot; class=&quot;headerlink&quot; title=&quot;安装hexo&quot;&gt;&lt;/a&gt;安装hexo&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;输入以下命令进行hexo安装&lt;br&gt;&lt;code&gt;npm install -g hexo&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;本地测试环境&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;新建一个文件夹，例如&lt;code&gt;test&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;进入文件夹，输入&lt;code&gt;hexo init&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;安装 node_modules&lt;br&gt;  输入命令&lt;code&gt;sudo npm install&lt;/code&gt;，该命令会自动在文件夹中生成&lt;code&gt;node_modules&lt;/code&gt;文件夹&lt;/li&gt;
+&lt;li&gt;启动服务器&lt;br&gt;  输入&lt;code&gt;hexo server&lt;/code&gt;启动服务器，然后浏览器访问&lt;code&gt;http://localhost:4000/&lt;/code&gt;,可以看到自己网站，说明环境已经配置好&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;在github上配置ssh-key&quot;&gt;&lt;a href=&quot;#在github上配置ssh-key&quot; class=&quot;headerlink&quot; title=&quot;在github上配置ssh-key&quot;&gt;&lt;/a&gt;在github上配置ssh-key&lt;/h3&gt;&lt;p&gt;因为hexo只支持ssh方式进行部署，不支持https方式进行部署，所以我们需要在github账号中配置我们的ssh-key&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;切换到root账户，输入&lt;code&gt;ssh-keygen -t rsa -C &amp;quot;your email&amp;quot;&lt;/code&gt;&lt;br&gt;（目前尚不清楚为什么使用&lt;code&gt;sudo hexo deploy&lt;/code&gt;命令部署时，系统会读取/root/账户根目录下的公钥文件，倘若直接在当前目录下进行公钥生成，那么部署将会失败）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;然后一直敲回车键&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;输入&lt;code&gt;cat ~/.ssh/id_rsa.pub&lt;/code&gt;查看公钥，然后复制公钥到“右上角账户-&amp;gt;setting-&amp;gt; SSH Keys”即可&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;写我们自己的博客&quot;&gt;&lt;a href=&quot;#写我们自己的博客&quot; class=&quot;headerlink&quot; title=&quot;写我们自己的博客&quot;&gt;&lt;/a&gt;写我们自己的博客&lt;/h2&gt;&lt;h3 id=&quot;首次进行博客书写&quot;&gt;&lt;a href=&quot;#首次进行博客书写&quot; class=&quot;headerlink&quot; title=&quot;首次进行博客书写&quot;&gt;&lt;/a&gt;首次进行博客书写&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;输入如下命令将coding上的代码clone到本地&lt;br&gt;&lt;code&gt;git clone https://git.coding.net/undefines/cilab_undefine_blog.git&lt;/code&gt;&lt;br&gt;coding上是我们博客的源码，github上的博客只是我们编译好之后的静态文件&lt;/li&gt;
+&lt;li&gt;安装node_modules模块&lt;br&gt;&lt;code&gt;sudo npm install&lt;/code&gt;&lt;br&gt;coding上同步的文件夹不包含&lt;code&gt;node_modules&lt;/code&gt;模块，所以首次下载需要自行安装&lt;/li&gt;
+&lt;li&gt;新建博客&lt;br&gt;输入&lt;code&gt;hexo new &amp;quot;your new article name&amp;quot;&lt;/code&gt;,然后系统会自动在&lt;code&gt;source/_post/&lt;/code&gt;文件夹下创建一篇名字为&lt;code&gt;your new article name.md&lt;/code&gt;的文章&lt;br&gt;,然后在该md格式文档中书写内容即可。    &lt;/li&gt;
+&lt;li&gt;编译文章&lt;br&gt;输入&lt;code&gt;hexo generate&lt;/code&gt;,nodejs会自动编译博客&lt;/li&gt;
+&lt;li&gt;本地预览&lt;br&gt;输入&lt;code&gt;hexo server&lt;/code&gt;命令启动本地服务器，然后访问&lt;code&gt;http://localhost:4000/&lt;/code&gt;即可以看到自己的文章的效果&lt;/li&gt;
+&lt;li&gt;推送到github&lt;br&gt;输入&lt;code&gt;git deploy&lt;/code&gt;即可以完成到github的部署&lt;/li&gt;
+&lt;li&gt;推送到coding&lt;br&gt;推送到coding,便于小组其他人进行协作&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;非首次进行博客书写&quot;&gt;&lt;a href=&quot;#非首次进行博客书写&quot; class=&quot;headerlink&quot; title=&quot;非首次进行博客书写&quot;&gt;&lt;/a&gt;非首次进行博客书写&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;注意: 以上流程讲解的是首次进行博客写作的时候的流程,如果不是首次进行写作(即本地有coding仓库代码),请按照如下流程&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;新建博客&lt;/li&gt;
+&lt;li&gt;本地调试&lt;/li&gt;
+&lt;li&gt;pull coding代码(因为其他人对博客可能有改动,导致本地代码库有可能不是最新版本)&lt;/li&gt;
+&lt;li&gt;部署到github&lt;/li&gt;
+&lt;li&gt;同步推送到coding&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;附hexo常用命令&quot;&gt;&lt;a href=&quot;#附hexo常用命令&quot; class=&quot;headerlink&quot; title=&quot;附hexo常用命令&quot;&gt;&lt;/a&gt;附hexo常用命令&lt;/h2&gt;&lt;p&gt;常用命令&lt;/p&gt;
+&lt;figure class=&quot;highlight axapta&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;hexo &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;postName&quot;&lt;/span&gt; &lt;span class=&quot;meta&quot;&gt;#新建文章&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; page &lt;span class=&quot;string&quot;&gt;&quot;pageName&quot;&lt;/span&gt; &lt;span class=&quot;meta&quot;&gt;#新建页面&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo generate &lt;span class=&quot;meta&quot;&gt;#生成静态页面至public目录&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo &lt;span class=&quot;keyword&quot;&gt;server&lt;/span&gt; &lt;span class=&quot;meta&quot;&gt;#开启预览访问端口（默认端口4000，&#39;ctrl + c&#39;关闭server）&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo deploy &lt;span class=&quot;meta&quot;&gt;#将.deploy目录部署到GitHub&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo help  &lt;span class=&quot;meta&quot;&gt;# 查看帮助&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo version  &lt;span class=&quot;meta&quot;&gt;#查看Hexo的版本&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;复合命令&lt;/p&gt;
+&lt;figure class=&quot;highlight axapta&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;hexo deploy -g  &lt;span class=&quot;meta&quot;&gt;#生成加部署&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo &lt;span class=&quot;keyword&quot;&gt;server&lt;/span&gt; -g  &lt;span class=&quot;meta&quot;&gt;#生成加预览&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;命令简写&lt;/p&gt;
+&lt;figure class=&quot;highlight nix&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;hexo &lt;span class=&quot;attr&quot;&gt;n&lt;/span&gt; == hexo new&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo &lt;span class=&quot;attr&quot;&gt;g&lt;/span&gt; == hexo generate&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo &lt;span class=&quot;attr&quot;&gt;s&lt;/span&gt; == hexo server&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;hexo &lt;span class=&quot;attr&quot;&gt;d&lt;/span&gt; == hexo deploy&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文只是讲解如何使用博客进行记录我们学习的点滴,不会讲博客的搭建流程。用博文进行进行文章的记录，只是我们的一种学习方式，工具用着顺手方便即可，没有必要纠结博客的搭建过程，有兴趣可以自行研究，但请勿本末倒置。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="使用说明" scheme="http://cilab-undefine.github.io/categories/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/"/>
+    
+    
+      <category term="hexo" scheme="http://cilab-undefine.github.io/tags/hexo/"/>
+    
+      <category term="blog" scheme="http://cilab-undefine.github.io/tags/blog/"/>
+    
+      <category term="github" scheme="http://cilab-undefine.github.io/tags/github/"/>
+    
+      <category term="joe" scheme="http://cilab-undefine.github.io/tags/joe/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>undefine小组成立了！！！</title>
+    <link href="http://cilab-undefine.github.io/2016/01/06/common-hexo-commands/"/>
+    <id>http://cilab-undefine.github.io/2016/01/06/common-hexo-commands/</id>
+    <published>2016-01-05T18:32:36.000Z</published>
+    <updated>2016-02-28T10:54:08.898Z</updated>
+    
+    <content type="html">&lt;style&gt;
+    .article-entry h2 {
+        border-bottom: none;
+    }
+&lt;/style&gt;
+
+&lt;p&gt;　　突破自己，不愿被定义，迷茫却不迷失，相信努力总会有收货！&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h3 id=&quot;缘起数于据挖掘项目组&quot;&gt;&lt;a href=&quot;#缘起数于据挖掘项目组&quot; class=&quot;headerlink&quot; title=&quot;缘起数于据挖掘项目组&quot;&gt;&lt;/a&gt;缘起数于据挖掘项目组&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt; 当时基本上就我一个研一新生，在以邵领师兄为首的师兄师姐的带领下，我学到了很多知识，不管是学习上的，还是生活上的，各种感激（现在我要做这个兴趣小组，很大程度上受到了师兄的影响）。基于兴趣，又为了工作，当时师兄师姐们建了机器学习的兴趣小组，运转的很好，但是后来他们实习的实习，找工作的找工作，那个小组也就慢慢的断在了我这一代。。。然后，也就没了然后。。。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;事发于饭桌上的冲动&quot;&gt;&lt;a href=&quot;#事发于饭桌上的冲动&quot; class=&quot;headerlink&quot; title=&quot;事发于饭桌上的冲动&quot;&gt;&lt;/a&gt;事发于饭桌上的冲动&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt; 就在前几天，几个小伙伴，一块吃晚饭，不知怎么扯到了机器学习小组，越说心里越不甘心，一些好的东西总是需要传承的，所以，本想效仿师兄的做法，把本届研二的组织在一块，为了工作，一开拼一把。但是由于每届的特殊性，我们这届大家研究方向差别很大，大家又很明确自己需要什么，所以大家都在追逐着自己的梦想。没有小伙伴，当时内心是崩溃的。也是想放弃的，我做这件事情对我的工作来讲意义不大，而且项目组比较忙，本身时间就很少。。饭桌上的话终究是饭桌上的。。。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;定于什么我至今不确定&quot;&gt;&lt;a href=&quot;#定于什么我至今不确定&quot; class=&quot;headerlink&quot; title=&quot;定于什么我至今不确定&quot;&gt;&lt;/a&gt;定于什么我至今不确定&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt; 那天晚上，和邵领师兄聊了很久，其实没有一个真正说服自己的理由，甚至到目前位置undefine小组还是为定义的，但就是越聊我就确定我一定要做这个事情，我一定要把这个事情做好，无关名与利。只愿不坑这些单纯可爱的师弟师妹。。。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;伙伴&quot;&gt;&lt;a href=&quot;#伙伴&quot; class=&quot;headerlink&quot; title=&quot;伙伴&quot;&gt;&lt;/a&gt;伙伴&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt; 我永远的大组长：邵领师兄，这也是我敢做的原因之一，就师兄的那一句：可以。我的心里就非常踏实。在已经拿到offer该享受学生时代这最美的时光的时候还愿意跟我们闹。很感激。书记是从饭桌上就决定要做这个小组的，有他在，我不怕小组，会再次毁在我手里，我也对这个小组的的未来充满信心。小文和陈珊在某种程度上是被我忽悠来的，基本上实验室最单纯的师弟师妹之一吧，这个组如果没做好，我最对不住的就是你们俩了。可爱的高总是被我们的logo吸引进来的，我倒想对你说：进来就对了！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;logo&quot;&gt;&lt;a href=&quot;#logo&quot; class=&quot;headerlink&quot; title=&quot;logo&quot;&gt;&lt;/a&gt;logo&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt; logo是我们一块的第一个作品，当然要拿出来晒一晒，千万不要说丑！那是你不懂！&lt;/p&gt;
+&lt;p&gt;  &lt;img src=&quot;http://i.imgur.com/x0VPtKi.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt; 关于这个logo还是上他们的原话比较好&lt;/p&gt;
+&lt;p&gt;  &lt;img src=&quot;http://i.imgur.com/r7AUDro.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;  当时看到这个介绍的时候，挺感动的，大家都好有心。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;这个博客&quot;&gt;&lt;a href=&quot;#这个博客&quot; class=&quot;headerlink&quot; title=&quot;这个博客&quot;&gt;&lt;/a&gt;这个博客&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt; 以后这里就是我们undefine小组的根据地了，大家的小窝，需要大家的维护，从圣诞那天你们在实验室精心的装扮，我就感觉到有你们在，这个地方肯定不会冷场。我们以后大家的学习笔记或是小作品，都会放上来，跟大家分享。希望提高自己，也希望利于他人。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;这个小组是干啥的&quot;&gt;&lt;a href=&quot;#这个小组是干啥的&quot; class=&quot;headerlink&quot; title=&quot;这个小组是干啥的&quot;&gt;&lt;/a&gt;这个小组是干啥的&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;再怎么说，也是依托于实验室，不能跟实验室文化向违背，肯定是以算法探讨学习为主，中间会根据大家的兴趣，穿插学习交流一些其他的知识。反正我内心是想做出至少一个标志性的作品出来，做出一个属于undefine又服务于实验室的东西。不管怎样，我们大家会尽快讨论出适合我们的方向。我们undefine不会无厘头的走下去的，还是那句话：迷茫不迷失！&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;寄语路人甲&quot;&gt;&lt;a href=&quot;#寄语路人甲&quot; class=&quot;headerlink&quot; title=&quot;寄语路人甲&quot;&gt;&lt;/a&gt;寄语路人甲&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt; 如果你偶然间路过这里，如果有哪些对你有用的东西，请点个赞，如果您是大牛，给您拜一个，跪求不喷，都还是孩子，能一起来维护这个小组已经不容易了。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;结语&quot;&gt;&lt;a href=&quot;#结语&quot; class=&quot;headerlink&quot; title=&quot;结语&quot;&gt;&lt;/a&gt;结语&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt; 不知不觉已经凌晨近4点了，虽然失眠很多，但真没有为什么事情熬过夜了，我喜欢这个小组，我愿意为这个小组付出，真心希望这个小组能一直做下去，能造福师弟师妹。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;code&gt;测试语法&lt;/code&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt; 我就是来测试markdown的显示效果的。&lt;/p&gt;
+&lt;/blockquote&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;style&gt;
+    .article-entry h2 {
+        border-bottom: none;
+    }
+&lt;/style&gt;
+
+&lt;p&gt;　　突破自己，不愿被定义，迷茫却不迷失，相信努力总会有收货！&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="心情" scheme="http://cilab-undefine.github.io/categories/%E5%BF%83%E6%83%85/"/>
+    
+    
+      <category term="心路历程" scheme="http://cilab-undefine.github.io/tags/%E5%BF%83%E8%B7%AF%E5%8E%86%E7%A8%8B/"/>
+    
+  </entry>
+  
+</feed>
